@@ -25,6 +25,10 @@ const caminho = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/
 const canonical = new URL(caminho, site).href;
 const ogImage = new URL(image ?? '/og-default.png', site).href;
 const umamiId = umamiProp || import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+// O Umami só conta visitas nos hostnames listados. Enquanto o domínio não está
+// conectado, dá para incluir o subdomínio do Netlify para testar.
+const umamiDomains =
+  import.meta.env.PUBLIC_UMAMI_DOMAINS || 'flowizehub.com,www.flowizehub.com';
 ---
 
 <!doctype html>
@@ -67,7 +71,7 @@ const umamiId = umamiProp || import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id={umamiId}
-          data-domains="flowizehub.com"
+          data-domains={umamiDomains}
         />
       )
     }

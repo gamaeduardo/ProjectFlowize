@@ -66,6 +66,15 @@ Campos principais:
 3. Como o Hobby tem 1 site só, a separação por cliente é feita pelo **caminho da página**.
 4. O evento `Pedido iniciado` é enviado **sem propriedades** (cada propriedade conta como evento na cota).
 
+O script só conta visitas nos hostnames de `PUBLIC_UMAMI_DOMAINS` (lista separada
+por vírgula, comparada com `location.hostname`). Padrão:
+`flowizehub.com,www.flowizehub.com`. Para testar antes do domínio, inclua o
+subdomínio do Netlify:
+
+```
+PUBLIC_UMAMI_DOMAINS=flowizehub.com,www.flowizehub.com,flowizehub.netlify.app
+```
+
 ## Variáveis de ambiente
 
 Copie `.env.example` para `.env`:
@@ -73,6 +82,7 @@ Copie `.env.example` para `.env`:
 ```
 PUBLIC_SITE_URL=https://flowizehub.com
 PUBLIC_UMAMI_WEBSITE_ID=
+PUBLIC_UMAMI_DOMAINS=
 ```
 
 ### Dados do Supabase no build
