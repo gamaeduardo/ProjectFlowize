@@ -1,15 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { apagarPagamento, listarClientes, listarPagamentos, registrarPagamento } from '../lib/db';
-import {
-  hojeISO,
-  linkWhatsApp,
-  mensagemCobranca,
-  mesDe,
-  nomeDoMes,
-  proximoVencimento,
-  situacao,
-} from '../lib/financeiro';
+import { hojeISO, mesDe, nomeDoMes } from '../lib/datas';
+import { linkWhatsApp, mensagemCobranca, proximoVencimento, situacao } from '../lib/financeiro';
 import { dataCurta, money, numero } from '../lib/format';
 import type { Cliente, Pagamento } from '../lib/types';
 

@@ -80,12 +80,17 @@ Detalhes do site em [`web/README.md`](web/README.md) e do painel em
    terminal enquanto o número de exemplo estiver ativo.
 2. Configure o Supabase e a Edge Function `publish` (passo a passo em
    `admin/README.md`).
-3. Crie o segundo site no Netlify para o painel, com **Base directory** `admin`
+3. Rode as migrations de `supabase/migrations/` no SQL Editor do Supabase
+   (financeiro e contador de visitas). São idempotentes.
+4. No site do Netlify (`web`), além de `SUPABASE_URL` e
+   `SUPABASE_SERVICE_ROLE_KEY`, defina `PUBLIC_SUPABASE_URL` e
+   `PUBLIC_SUPABASE_KEY` (a chave publishable) para ligar o contador de visitas.
+   Sem elas o painel mostra zero e o build avisa no terminal.
+5. Crie o segundo site no Netlify para o painel, com **Base directory** `admin`
    e o domínio `admin.flowizehub.com`.
 
 ## Próximas fases
 
-1. Financeiro: painel de atrasados e cobrança no WhatsApp
-2. Analytics: dashboard único e snapshots manuais
-3. Leads: Google Maps, Instagram e funil
-4. Preview com token (`/preview/<slug>?token=...`) para aprovar antes de publicar
+1. Leads: Google Maps, Instagram e funil
+2. Preview com token (`/preview/<slug>?token=...`) para aprovar antes de publicar
+3. Domínio próprio por cliente e relatório automatizado

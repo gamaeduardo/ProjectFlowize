@@ -34,6 +34,7 @@ export default function Layout({ email, modoDemo, children }: Props) {
           <nav className="nav" aria-label="Seções do painel">
             <NavLink to="/clientes">Clientes</NavLink>
             <NavLink to="/financeiro">Financeiro</NavLink>
+            <NavLink to="/analytics">Analytics</NavLink>
           </nav>
 
           <div className="topbar-conta">

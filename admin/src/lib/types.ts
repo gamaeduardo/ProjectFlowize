@@ -59,3 +59,10 @@ export type Pagamento = {
   paid_until_novo: string | null;
   created_at: string;
 };
+
+/** Linha da tabela `pageviews`: visitas de um cardápio em um dia. */
+export type Visita = {
+  client_id: string;
+  dia: string;
+  visitas: number;
+};

@@ -44,6 +44,19 @@ const jsonLd: Record<string, unknown> = {
 };
 
 const cores = cssVars(cfg.cores);
+
+// Contador próprio de visitas: só usa a chave pública (o RLS protege o resto).
+// O Umami continua sendo a fonte de detalhe; isto é o resumo por cardápio.
+// Conta também `teste` (o link já pode estar circulando) e ignora `inativo`.
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_KEY;
+const contarVisitas = !inativo && Boolean(supabaseUrl && supabaseKey);
+
+if (!inativo && !contarVisitas) {
+  console.warn(
+    '[Flowize] contador de visitas desligado: defina PUBLIC_SUPABASE_URL e PUBLIC_SUPABASE_KEY.',
+  );
+}
 ---
 
 <Base
@@ -74,6 +87,41 @@ const cores = cssVars(cfg.cores);
       <Simples cfg={cfg} slug={slug} />
     ) : (
       <Completo cfg={cfg} slug={slug} />
+    )
+  }
+
+  {
+    contarVisitas && (
+      <script is:inline define:vars={{ slug, supabaseUrl, supabaseKey }}>
+        (() => {
+          if (!supabaseUrl || !supabaseKey) return;
+          if (navigator.webdriver) return;
+          if (navigator.doNotTrack === '1') return;
+          if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+
+          const chave = 'flowize:visita:' + slug;
+          try {
+            if (sessionStorage.getItem(chave)) return;
+            sessionStorage.setItem(chave, '1');
+          } catch {
+            // Modo privado: conta uma vez por carregamento.
+          }
+
+          fetch(supabaseUrl.replace(/\/+$/, '') + '/rest/v1/rpc/registrar_visita', {
+            method: 'POST',
+            mode: 'cors',
+            keepalive: true,
+            headers: {
+              'content-type': 'application/json',
+              apikey: supabaseKey,
+              authorization: 'Bearer ' + supabaseKey,
+            },
+            body: JSON.stringify({ p_slug: slug }),
+          }).catch(() => {
+            // Sem rede ou Supabase fora do ar: a visita simplesmente não conta.
+          });
+        })();
+      </script>
     )
   }
 </Base>

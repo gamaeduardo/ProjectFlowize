@@ -1,27 +1,5 @@
+import { comoData, diasEntre, hojeISO } from './datas';
 import type { Cliente } from './types';
-
-/** Data de hoje no formato YYYY-MM-DD, no fuso do navegador. */
-export function hojeISO(): string {
-  return paraISO(new Date());
-}
-
-export function paraISO(data: Date): string {
-  const ano = data.getFullYear();
-  const mes = String(data.getMonth() + 1).padStart(2, '0');
-  const dia = String(data.getDate()).padStart(2, '0');
-  return `${ano}-${mes}-${dia}`;
-}
-
-/** Meia-noite local evita o bug de fuso que volta um dia. */
-function comoData(iso: string): Date {
-  const [ano, mes, dia] = iso.split('-').map(Number);
-  return new Date(ano, mes - 1, dia, 12);
-}
-
-/** Diferença em dias: positivo quando `b` é depois de `a`. */
-export function diasEntre(a: string, b: string): number {
-  return Math.round((comoData(b).getTime() - comoData(a).getTime()) / 86_400_000);
-}
 
 /** Monta YYYY-MM-DD com o dia limitado ao último dia do mês. */
 function montar(ano: number, mes: number, dia: number): string {
@@ -85,18 +63,6 @@ export function situacao(
     return { tipo: 'a-vencer', dias, rotulo: `Vence em ${Math.abs(dias)} dia${dias < -1 ? 's' : ''}` };
   }
   return { tipo: 'em-dia', dias, rotulo: 'Em dia' };
-}
-
-/** Mês no formato YYYY-MM. */
-export function mesDe(iso: string): string {
-  return iso.slice(0, 7);
-}
-
-export function nomeDoMes(mes: string): string {
-  const [ano, numero] = mes.split('-').map(Number);
-  const data = new Date(ano, numero - 1, 1);
-  const nome = data.toLocaleDateString('pt-BR', { month: 'long' });
-  return `${nome.charAt(0).toUpperCase()}${nome.slice(1)} de ${ano}`;
 }
 
 /** Mensagem de cobrança pronta para o WhatsApp. */

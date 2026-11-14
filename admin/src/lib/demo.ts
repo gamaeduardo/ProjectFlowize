@@ -1,6 +1,7 @@
 import lanchonete from '../../../web/src/data/clientes/lanchonete-da-ana.json';
 import pizzaria from '../../../web/src/data/clientes/pizzaria-do-joao.json';
-import type { Cliente, Pagamento } from './types';
+import { paraISO } from './datas';
+import type { Cliente, Pagamento, Visita } from './types';
 
 /**
  * Modo demonstração: usa os mesmos JSONs de web/src/data/clientes e guarda as
@@ -131,4 +132,48 @@ export function gravarPagamentosDemo(pagamentos: Pagamento[]): void {
   } catch {
     // Sem espaço ou modo privado: o painel segue funcionando na sessão.
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Visitas (Fase 4)                                                           */
+/* -------------------------------------------------------------------------- */
+
+/** Ruído estável: o mesmo slug + dia sempre gera o mesmo número. */
+function ruido(slug: string, dia: string): number {
+  let hash = 2166136261;
+  for (const texto of [slug, dia]) {
+    for (let i = 0; i < texto.length; i++) {
+      hash ^= texto.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+  }
+  return (hash >>> 0) / 4294967295;
+}
+
+/**
+ * Série de visitas inventada, mas estável, para o modo demonstração.
+ * O painel real lê a tabela `pageviews`; aqui só queremos ver o gráfico vivo.
+ */
+export function lerVisitasDemo(dias = 60): Visita[] {
+  const lista: Visita[] = [];
+  const hoje = new Date();
+  hoje.setHours(12, 0, 0, 0);
+
+  for (const cliente of lerDemo()) {
+    if (cliente.status === 'inativo') continue;
+
+    const base = cliente.pacote === 'completo' ? 16 : 8;
+
+    for (let i = dias - 1; i >= 0; i--) {
+      const data = new Date(hoje);
+      data.setDate(data.getDate() - i);
+      const dia = paraISO(data);
+      const fimDeSemana = data.getDay() === 0 || data.getDay() === 6 ? 1.5 : 1;
+      const visitas = Math.round(base * fimDeSemana * (0.55 + ruido(cliente.slug, dia)));
+
+      if (visitas > 0) lista.push({ client_id: cliente.id, dia, visitas });
+    }
+  }
+
+  return lista;
 }

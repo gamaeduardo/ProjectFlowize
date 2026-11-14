@@ -1,6 +1,7 @@
-import { gravarDemo, gravarPagamentosDemo, lerDemo, lerPagamentosDemo, resetarDemo } from './demo';
+import { hojeISO, somarDias } from './datas';
+import { gravarDemo, gravarPagamentosDemo, lerDemo, lerPagamentosDemo, lerVisitasDemo, resetarDemo } from './demo';
 import { supabase } from './supabase';
-import type { Cliente, ClienteEntrada, EventoPublicacao, Pagamento } from './types';
+import type { Cliente, ClienteEntrada, EventoPublicacao, Pagamento, Visita } from './types';
 
 export const modoDemo = !supabase;
 
@@ -302,4 +303,32 @@ function traduzirFinanceiro(mensagem: string): string {
     return 'A função registrar_pagamento ainda não existe no banco. Rode supabase/migrations/20261114180000_financeiro.sql no SQL Editor.';
   }
   return mensagem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Visitas (Fase 4)                                                           */
+/* -------------------------------------------------------------------------- */
+
+export async function listarVisitas(dias = 60): Promise<Visita[]> {
+  if (!supabase) {
+    return lerVisitasDemo(dias);
+  }
+
+  const desde = somarDias(hojeISO(), -(dias - 1));
+  const { data, error } = await supabase
+    .from('pageviews')
+    .select('client_id, dia, visitas')
+    .gte('dia', desde)
+    .order('dia', { ascending: true });
+
+  if (error) {
+    if (/does not exist|relation/i.test(error.message)) {
+      throw new Error(
+        'A tabela pageviews ainda não existe no banco. Rode supabase/migrations/20261114200000_visitas.sql no SQL Editor.',
+      );
+    }
+    throw new Error(mensagemDeErro(error));
+  }
+
+  return (data ?? []) as Visita[];
 }

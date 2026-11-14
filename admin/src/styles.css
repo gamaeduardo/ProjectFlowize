@@ -851,6 +851,67 @@ textarea {
   color: var(--verde);
 }
 
+/* Analytics ------------------------------------------------------------- */
+.grafico {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 170px;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.grafico-coluna {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  min-width: 0;
+}
+
+.grafico-total {
+  color: var(--mudo);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafico-barra {
+  width: 100%;
+  max-width: 36px;
+  min-height: 3px;
+  border-radius: 5px 5px 2px 2px;
+  background: #e0a49c;
+}
+
+.grafico-barra-hoje {
+  background: var(--acento);
+}
+
+.grafico-dia {
+  color: var(--mudo);
+  font-size: 0.62rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .grafico-dia-par {
+    display: none;
+  }
+}
+
+.selo-sobe {
+  background: #e2f3e9;
+  color: var(--verde);
+}
+
+.selo-desce {
+  background: #f6e2e2;
+  color: #a3241c;
+}
+
 /* Modal ----------------------------------------------------------------- */
 .modal-fundo {
   position: fixed;
