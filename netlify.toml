@@ -5,6 +5,9 @@
   # automático que o Netlify roda antes deste comando.
   command = "npm ci && npm run build"
   publish = "dist"
+  # Não gasta um deploy de produção quando o push não mexeu no site.
+  # (No plano Free cada deploy de produção custa 15 dos 300 créditos/mês.)
+  ignore = "test -n \"$CACHED_COMMIT_REF\" && git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ."
 
 [build.environment]
   NODE_VERSION = "24"

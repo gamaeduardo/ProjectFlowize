@@ -6,6 +6,8 @@
 [build]
   command = "npm ci && npm run build"
   publish = "dist"
+  # Só gasta deploy quando o painel (ou os JSONs de demo que ele importa) mudou.
+  ignore = "test -n \"$CACHED_COMMIT_REF\" && git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ../web/src/data/clientes"
 
 [build.environment]
   NODE_VERSION = "24"
