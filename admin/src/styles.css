@@ -896,6 +896,48 @@ textarea {
   white-space: nowrap;
 }
 
+/* Leads ------------------------------------------------------------------ */
+.filtros .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lead-contato {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lead-contato a {
+  color: var(--mudo);
+  font-size: 0.82rem;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--linha-forte);
+}
+
+.lead-contato a:hover {
+  color: var(--tinta);
+}
+
+.tabela select.etapa {
+  width: auto;
+  padding: 6px 10px;
+  border: 1px solid var(--linha-forte);
+  border-radius: 999px;
+  background: var(--branco);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.followup-atrasado {
+  color: #a3241c;
+  font-weight: 600;
+}
+
 @media (max-width: 560px) {
   .grafico-dia-par {
     display: none;

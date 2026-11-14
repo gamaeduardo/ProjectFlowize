@@ -1,7 +1,24 @@
 import { hojeISO, somarDias } from './datas';
-import { gravarDemo, gravarPagamentosDemo, lerDemo, lerPagamentosDemo, lerVisitasDemo, resetarDemo } from './demo';
+import {
+  gravarDemo,
+  gravarLeadsDemo,
+  gravarPagamentosDemo,
+  lerDemo,
+  lerLeadsDemo,
+  lerPagamentosDemo,
+  lerVisitasDemo,
+  resetarDemo,
+} from './demo';
 import { supabase } from './supabase';
-import type { Cliente, ClienteEntrada, EventoPublicacao, Pagamento, Visita } from './types';
+import type {
+  Cliente,
+  ClienteEntrada,
+  EventoPublicacao,
+  Lead,
+  LeadEntrada,
+  Pagamento,
+  Visita,
+} from './types';
 
 export const modoDemo = !supabase;
 
@@ -331,4 +348,115 @@ export async function listarVisitas(dias = 60): Promise<Visita[]> {
   }
 
   return (data ?? []) as Visita[];
+}
+
+/* -------------------------------------------------------------------------- */
+/* Leads (Fase 5)                                                             */
+/* -------------------------------------------------------------------------- */
+
+function payloadLead(entrada: LeadEntrada) {
+  return {
+    nome: entrada.nome.trim(),
+    telefone: entrada.telefone?.replace(/\D/g, '') || null,
+    instagram: entrada.instagram?.trim().replace(/^@/, '') || null,
+    maps_url: entrada.maps_url?.trim() || null,
+    bairro: entrada.bairro?.trim() || null,
+    origem: entrada.origem,
+    etapa: entrada.etapa,
+    proximo_followup: entrada.proximo_followup || null,
+    notas: entrada.notas?.trim() || null,
+    client_id: entrada.client_id || null,
+  };
+}
+
+function traduzirLeads(mensagem: string): string {
+  if (/does not exist|relation/i.test(mensagem)) {
+    return 'A tabela leads ainda não existe no banco. Rode supabase/migrations/20261114220000_leads.sql no SQL Editor.';
+  }
+  return mensagem;
+}
+
+export async function listarLeads(): Promise<Lead[]> {
+  if (!supabase) {
+    return lerLeadsDemo().slice();
+  }
+
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(traduzirLeads(mensagemDeErro(error)));
+  return (data ?? []) as Lead[];
+}
+
+export async function salvarLead(entrada: LeadEntrada & { id?: string }): Promise<Lead> {
+  const dados = payloadLead(entrada);
+
+  if (!supabase) {
+    await esperar(200);
+    const lista = lerLeadsDemo();
+    const agora = new Date().toISOString();
+
+    if (entrada.id) {
+      const indice = lista.findIndex((lead) => lead.id === entrada.id);
+      if (indice < 0) throw new Error('Lead não encontrado.');
+      lista[indice] = { ...lista[indice], ...dados, updated_at: agora };
+      gravarLeadsDemo(lista);
+      return lista[indice];
+    }
+
+    const novo: Lead = {
+      id: `demo-${crypto.randomUUID()}`,
+      ...dados,
+      created_at: agora,
+      updated_at: agora,
+    };
+    lista.unshift(novo);
+    gravarLeadsDemo(lista);
+    return novo;
+  }
+
+  const consulta = entrada.id
+    ? supabase.from('leads').update(dados).eq('id', entrada.id).select().single()
+    : supabase.from('leads').insert(dados).select().single();
+
+  const { data, error } = await consulta;
+  if (error) throw new Error(traduzirLeads(mensagemDeErro(error)));
+  return data as Lead;
+}
+
+export async function excluirLead(id: string): Promise<void> {
+  if (!supabase) {
+    gravarLeadsDemo(lerLeadsDemo().filter((lead) => lead.id !== id));
+    return;
+  }
+
+  const { error } = await supabase.from('leads').delete().eq('id', id);
+  if (error) throw new Error(traduzirLeads(mensagemDeErro(error)));
+}
+
+/** Fim do funil: guarda o vínculo com o cardápio criado. */
+export async function marcarLeadConvertido(leadId: string, clienteId: string): Promise<void> {
+  if (!supabase) {
+    const lista = lerLeadsDemo();
+    const indice = lista.findIndex((lead) => lead.id === leadId);
+    if (indice < 0) return;
+    lista[indice] = {
+      ...lista[indice],
+      etapa: 'cliente',
+      client_id: clienteId,
+      proximo_followup: null,
+      updated_at: new Date().toISOString(),
+    };
+    gravarLeadsDemo(lista);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('leads')
+    .update({ etapa: 'cliente', client_id: clienteId, proximo_followup: null })
+    .eq('id', leadId);
+
+  if (error) throw new Error(traduzirLeads(mensagemDeErro(error)));
 }

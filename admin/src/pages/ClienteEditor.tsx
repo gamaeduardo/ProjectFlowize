@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardapioEditor from '../components/CardapioEditor';
 import SeloStatus from '../components/SeloStatus';
 import {
   excluirCliente,
+  marcarLeadConvertido,
   obterCliente,
   publicar,
   salvarCliente,
 } from '../lib/db';
 import { dataHora, numero, slugify } from '../lib/format';
 import { menuConfigSchema } from '../lib/schema';
-import type { Cliente, ClienteEntrada, Pacote, Status } from '../lib/types';
+import type { Cliente, ClienteEntrada, Lead, Pacote, Status } from '../lib/types';
 
 type Aba = 'dados' | 'cardapio' | 'financeiro';
 
@@ -57,12 +58,31 @@ function deCliente(cliente: Cliente): ClienteEntrada {
   return copia as ClienteEntrada;
 }
 
+/** Cliente novo a partir de um lead: aproveita nome, contato e bairro. */
+function deLead(lead: Lead): ClienteEntrada {
+  return {
+    ...vazio(),
+    nome: lead.nome,
+    slug: slugify(lead.nome),
+    whatsapp: lead.telefone ?? '',
+    instagram: lead.instagram,
+    maps_url: lead.maps_url,
+    endereco: lead.bairro,
+    notas: lead.notas,
+  };
+}
+
 export default function ClienteEditor() {
   const { id } = useParams<{ id: string }>();
   const navegar = useNavigate();
+  const local = useLocation();
   const novo = !id || id === 'novo';
 
-  const [dados, setDados] = useState<ClienteEntrada | null>(novo ? vazio() : null);
+  const lead = novo ? ((local.state as { lead?: Lead } | null)?.lead ?? null) : null;
+
+  const [dados, setDados] = useState<ClienteEntrada | null>(() =>
+    novo ? (lead ? deLead(lead) : vazio()) : null,
+  );
   const [clienteId, setClienteId] = useState<string | undefined>(novo ? undefined : id);
   const [publicadoEm, setPublicadoEm] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(!novo);
@@ -160,7 +180,16 @@ export default function ClienteEditor() {
       setPublicadoEm(salvo.published_at);
       setSujo(false);
       setAviso('Cliente salvo.');
-      if (!clienteId) navegar(`/clientes/${salvo.id}`, { replace: true });
+      if (!clienteId) {
+        if (lead) {
+          try {
+            await marcarLeadConvertido(lead.id, salvo.id);
+          } catch {
+            setAviso('Cliente salvo. O lead não foi marcado como cliente — ajuste na aba Leads.');
+          }
+        }
+        navegar(`/clientes/${salvo.id}`, { replace: true });
+      }
     } catch (e) {
       setErro((e as Error).message);
     } finally {
@@ -250,6 +279,12 @@ export default function ClienteEditor() {
               <li key={mensagem}>{mensagem}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {lead && (
+        <div className="aviso aviso-info">
+          Vindo do lead <strong>{lead.nome}</strong>. Ao salvar, ele é marcado como cliente.
         </div>
       )}
 

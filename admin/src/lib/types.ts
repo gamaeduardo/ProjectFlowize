@@ -66,3 +66,25 @@ export type Visita = {
   dia: string;
   visitas: number;
 };
+
+export type EtapaLead = 'novo' | 'contatado' | 'negociando' | 'cliente' | 'perdido';
+export type OrigemLead = 'maps' | 'instagram' | 'indicacao' | 'whatsapp' | 'outro';
+
+/** Linha da tabela `leads`: prospecção até virar cliente. */
+export type Lead = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  instagram: string | null;
+  maps_url: string | null;
+  bairro: string | null;
+  origem: OrigemLead;
+  etapa: EtapaLead;
+  proximo_followup: string | null;
+  notas: string | null;
+  client_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type LeadEntrada = Omit<Lead, 'id' | 'created_at' | 'updated_at'>;

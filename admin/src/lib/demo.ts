@@ -1,7 +1,7 @@
 import lanchonete from '../../../web/src/data/clientes/lanchonete-da-ana.json';
 import pizzaria from '../../../web/src/data/clientes/pizzaria-do-joao.json';
-import { paraISO } from './datas';
-import type { Cliente, Pagamento, Visita } from './types';
+import { hojeISO, paraISO, somarDias } from './datas';
+import type { Cliente, Lead, Pagamento, Visita } from './types';
 
 /**
  * Modo demonstração: usa os mesmos JSONs de web/src/data/clientes e guarda as
@@ -176,4 +176,114 @@ export function lerVisitasDemo(dias = 60): Visita[] {
   }
 
   return lista;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Leads (Fase 5)                                                             */
+/* -------------------------------------------------------------------------- */
+
+const CHAVE_LEADS = 'flowize:demo:leads:v1';
+
+function montarLead(
+  id: string,
+  dados: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'client_id'> & { client_id?: string | null },
+): Lead {
+  const agora = new Date().toISOString();
+  return {
+    id,
+    ...dados,
+    client_id: dados.client_id ?? null,
+    created_at: agora,
+    updated_at: agora,
+  };
+}
+
+export function semearLeadsDemo(): Lead[] {
+  const hoje = hojeISO();
+
+  return [
+    montarLead('demo-lead-joao', {
+      nome: 'Pizzaria do João',
+      telefone: '5511988887777',
+      instagram: 'pizzariadojoao',
+      maps_url: 'https://maps.google.com/?q=Pizzaria+do+Joao',
+      bairro: 'Vila Mariana',
+      origem: 'maps',
+      etapa: 'cliente',
+      proximo_followup: null,
+      notas: 'Fechou o pacote completo. Cardápio no ar.',
+      client_id: 'demo-pizzaria-do-joao',
+    }),
+    montarLead('demo-lead-ze', {
+      nome: 'Hamburgueria do Zé',
+      telefone: '5511977776666',
+      instagram: 'hamburgueriadaze',
+      maps_url: 'https://maps.google.com/?q=Hamburgueria+do+Ze',
+      bairro: 'Pinheiros',
+      origem: 'maps',
+      etapa: 'contatado',
+      proximo_followup: somarDias(hoje, -2),
+      notas: 'Pediu para chamar depois do fim de semana.',
+      client_id: null,
+    }),
+    montarLead('demo-lead-acai', {
+      nome: 'Açaí da Praça',
+      telefone: null,
+      instagram: 'acaidapraca',
+      maps_url: null,
+      bairro: 'Butantã',
+      origem: 'instagram',
+      etapa: 'novo',
+      proximo_followup: somarDias(hoje, 1),
+      notas: 'Perfil com 4 mil seguidores, sem link na bio.',
+      client_id: null,
+    }),
+    montarLead('demo-lead-nonna', {
+      nome: 'Cantina da Nonna',
+      telefone: '5511966665555',
+      instagram: null,
+      maps_url: 'https://maps.google.com/?q=Cantina+da+Nonna',
+      bairro: 'Bela Vista',
+      origem: 'indicacao',
+      etapa: 'negociando',
+      proximo_followup: somarDias(hoje, 4),
+      notas: 'Indicação da Ana. Quer o pacote simples.',
+      client_id: null,
+    }),
+    montarLead('demo-lead-pao', {
+      nome: 'Padaria Pão Quente',
+      telefone: '5511955554444',
+      instagram: null,
+      maps_url: 'https://maps.google.com/?q=Padaria+Pao+Quente',
+      bairro: 'Moema',
+      origem: 'maps',
+      etapa: 'perdido',
+      proximo_followup: null,
+      notas: 'Já usa um sistema de marketplace e não quis trocar.',
+      client_id: null,
+    }),
+  ];
+}
+
+export function lerLeadsDemo(): Lead[] {
+  try {
+    const bruto = localStorage.getItem(CHAVE_LEADS);
+    if (!bruto) {
+      const semente = semearLeadsDemo();
+      gravarLeadsDemo(semente);
+      return semente;
+    }
+    const dados = JSON.parse(bruto) as Lead[];
+    return Array.isArray(dados) ? dados : semearLeadsDemo();
+  } catch {
+    return semearLeadsDemo();
+  }
+}
+
+export function gravarLeadsDemo(leads: Lead[]): void {
+  try {
+    localStorage.setItem(CHAVE_LEADS, JSON.stringify(leads));
+  } catch {
+    // Sem espaço ou modo privado: o painel segue funcionando na sessão.
+  }
 }

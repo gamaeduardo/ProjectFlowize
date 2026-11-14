@@ -23,7 +23,9 @@ publicado nesse modo.
 ## Configurar o Supabase (uma vez)
 
 1. Crie um projeto em [supabase.com](https://supabase.com).
-2. No **SQL Editor**, cole e rode `../supabase/migrations/20261114120000_init.sql`.
+2. No **SQL Editor**, rode as migrations na ordem:
+   `20261114120000_init.sql`, `20261114180000_financeiro.sql`,
+   `20261114200000_visitas.sql` e `20261114220000_leads.sql`.
 3. Opcional: rode `../supabase/seed.sql` para carregar os dois clientes de
    demonstração.
 4. Em **Authentication → Users**, crie o usuário do painel (e-mail + senha).
@@ -38,6 +40,20 @@ A migration já cria:
 - `publish_events` com o histórico de publicações
 - RLS: só usuário autenticado lê e escreve; o site público não acessa o banco
 - bucket `fotos` (público para leitura) para as imagens dos itens
+
+As migrations seguintes acrescentam:
+
+- `payments` + funções `registrar_pagamento` / `estornar_pagamento` (financeiro)
+- `pageviews` + RPC `registrar_visita` (contador de visitas do cardápio)
+- `leads` (funil de prospecção da aba **Leads**)
+
+## Abas do painel
+
+- **Clientes** — cadastro, editor de cardápio, status e **Publicar site**
+- **Leads** — prospecção com follow-up; **Virar cliente** abre o cadastro já
+  preenchido e marca o lead como cliente ao salvar
+- **Financeiro** — vencimentos, cobrança no WhatsApp, recebimento e estorno
+- **Analytics** — visitas por cardápio (contador próprio; Umami é o detalhe)
 
 ## Publicar o site pelo painel
 

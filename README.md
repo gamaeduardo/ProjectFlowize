@@ -58,6 +58,14 @@ O painel fica em `admin.flowizehub.com`.
 - Contador próprio de visitas por cardápio (1 por sessão, sem cookie e sem IP)
 - Cards, gráfico de 14 dias e tabela por cliente com variação mensal
 - Umami Cloud continua como fonte de detalhe
+- Crawler e automação não contam (filtro de user-agent e `navigator.webdriver`)
+
+### Fase 5 — leads (concluída)
+
+- Tabela `leads` com funil `novo → contatado → negociando → cliente | perdido`
+- Página `/leads` com resumo, busca, filtro por etapa e destaque de follow-up atrasado
+- Ações rápidas: WhatsApp com mensagem de abordagem, Instagram e Maps
+- **Virar cliente**: abre o cadastro já preenchido e marca o lead como cliente ao salvar
 
 ## Rodar
 
@@ -114,6 +122,5 @@ Detalhes do site em [`web/README.md`](web/README.md) e do painel em
 
 ## Próximas fases
 
-1. Leads: Google Maps, Instagram e funil
-2. Preview com token (`/preview/<slug>?token=...`) para aprovar antes de publicar
-3. Domínio próprio por cliente e relatório automatizado
+1. Preview com token (`/preview/<slug>?token=...`) para aprovar antes de publicar
+2. Domínio próprio por cliente e relatório automatizado

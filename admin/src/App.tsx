@@ -7,6 +7,7 @@ import ClienteEditor from './pages/ClienteEditor';
 import Clientes from './pages/Clientes';
 import Analytics from './pages/Analytics';
 import Financeiro from './pages/Financeiro';
+import Leads from './pages/Leads';
 import Login from './pages/Login';
 
 export default function App() {
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/clientes/:id" element={<ClienteEditor />} />
           <Route path="/financeiro" element={<Financeiro />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/leads" element={<Leads />} />
           <Route path="*" element={<Navigate to="/clientes" replace />} />
         </Routes>
       </Layout>

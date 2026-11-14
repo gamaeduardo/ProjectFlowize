@@ -4,6 +4,10 @@
 
 - `migrations/20261114120000_init.sql` — tabelas `clients` e `publish_events`,
   RLS, trigger de `updated_at` e bucket `fotos`.
+- `migrations/20261114180000_financeiro.sql` — `payments` e as funções de
+  recebimento/estorno.
+- `migrations/20261114200000_visitas.sql` — `pageviews` e a RPC `registrar_visita`.
+- `migrations/20261114220000_leads.sql` — `leads` e o funil de prospecção.
 - `seed.sql` — dois clientes de demonstração (opcional, pode rodar de novo sem
   duplicar).
 - `functions/publish/index.ts` — Edge Function que dispara o build hook do
@@ -11,8 +15,8 @@
 
 ## Aplicar
 
-Pelo painel do Supabase, no **SQL Editor**, rode primeiro a migration e depois
-o seed. Ou, com a CLI:
+Pelo painel do Supabase, no **SQL Editor**, rode as migrations em ordem
+(`init`, `financeiro`, `visitas`, `leads`) e depois o seed. Ou, com a CLI:
 
 ```bash
 supabase link --project-ref SEU_PROJECT_REF
