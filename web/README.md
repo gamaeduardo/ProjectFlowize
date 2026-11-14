@@ -19,7 +19,7 @@ O compilador do Astro é instalado também na versão WASM
 (`@astrojs/compiler-binding-wasm32-wasi`), declarada para `cpu: wasm32`. Em
 máquinas x64 o npm recusaria esse pacote com `EBADPLATFORM`, então o
 `.npmrc` do projeto define `force=true` — vale para `npm ci`, `npm install` e
-para o install automático do Netlify. Os scripts `npm run dev` e
+para o install automático do CI (Cloudflare Pages). Os scripts `npm run dev` e
 `npm run build` carregam o loader que troca o binding nativo pelo WASM —
 necessário em CPUs x64 sem AVX2, onde o binding nativo morre com `SIGILL`.
 
@@ -68,11 +68,11 @@ Campos principais:
 
 O script só conta visitas nos hostnames de `PUBLIC_UMAMI_DOMAINS` (lista separada
 por vírgula, comparada com `location.hostname`). Padrão:
-`flowizehub.com,www.flowizehub.com`. Para testar antes do domínio, inclua o
-subdomínio do Netlify:
+`flowizehub.com,www.flowizehub.com`. Para testar antes do domínio, inclua os
+subdomínios de hospedagem:
 
 ```
-PUBLIC_UMAMI_DOMAINS=flowizehub.com,www.flowizehub.com,flowizehub.netlify.app
+PUBLIC_UMAMI_DOMAINS=flowizehub.com,www.flowizehub.com,flowizehub.pages.dev
 ```
 
 ## Variáveis de ambiente
@@ -87,8 +87,8 @@ PUBLIC_UMAMI_DOMAINS=
 
 ### Dados do Supabase no build
 
-Para o site sair do Supabase em vez dos JSONs locais, defina **no Netlify**
-(Environment variables):
+Para o site sair do Supabase em vez dos JSONs locais, defina **no Cloudflare
+Pages** (Settings → Environment variables):
 
 ```
 SUPABASE_URL=https://SEU-PROJETO.supabase.co
@@ -100,20 +100,22 @@ para o navegador. Sem elas, o build usa `src/data/clientes/*.json` — útil par
 desenvolver e como fallback. Os dois caminhos passam pelo mesmo schema Zod: um
 cliente inválido quebra o build.
 
-## Deploy (Netlify)
-
-O `netlify.toml` da raiz já define `base = web`, `publish = dist` e
-`command = "npm ci && npm run build"`.
+## Deploy (Cloudflare Pages)
 
 1. Suba o repositório no GitHub.
-2. No Netlify: **Add new site → Import an existing project** e escolha o repositório.
-3. Confirme as configurações de build (elas vêm do `netlify.toml`).
-4. Em **Domain management**, adicione `flowizehub.com` e `www.flowizehub.com`.
-5. No registrador do domínio, crie os registros que o Netlify indicar
-   (normalmente um `A` para o domínio raiz e um `CNAME` para `www`).
-6. Ative o HTTPS automático (Let's Encrypt) no Netlify.
-7. Em **Site configuration → Environment variables**, preencha
-   `PUBLIC_UMAMI_WEBSITE_ID` quando o Umami estiver configurado.
+2. Em **Workers & Pages → Create → Pages → Connect to Git**, escolha o repositório.
+3. Configure o projeto:
+   - **Root directory**: `web`
+   - **Build command**: `npm ci && npm run build`
+   - **Build output directory**: `dist`
+   - **Variável**: `NODE_VERSION=22`
+4. Em **Environment variables**, preencha as variáveis de build e as públicas
+   (Umami e contador de visitas).
+5. Em **Custom domains**, adicione `flowizehub.com` e `www.flowizehub.com`
+   quando o domínio estiver comprado. O Cloudflare cria o HTTPS sozinho.
+6. Crie um **Deploy hook** (Settings → Builds & deployments) e salve a URL no
+   segredo `BUILD_HOOK` do Supabase — é o que o botão **Publicar site** dispara.
 
-O redirecionamento de `www.flowizehub.com` para `flowizehub.com` já está no
-`netlify.toml`, junto com os headers de segurança e cache.
+Os headers de segurança e cache ficam em `public/_headers`. O Cloudflare Pages
+não aceita redirecionamento de domínio no `_redirects`; o `www` → raiz é feito
+com uma **Redirect Rule** na zona do domínio (Rules → Redirect Rules).

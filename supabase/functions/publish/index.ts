@@ -1,11 +1,13 @@
 // Edge Function: publicar o site.
 //
 // Recebe POST do painel autenticado, confere a sessão e dispara o build hook
-// do Netlify. O segredo fica nas variáveis da função, nunca no navegador.
+// do Cloudflare Pages. O segredo fica nas variáveis da função, nunca no navegador.
 //
 // Deploy:
 //   supabase functions deploy publish
-//   supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/xxxx
+//   supabase secrets set BUILD_HOOK=https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/xxxx
+//
+// O nome antigo NETLIFY_BUILD_HOOK continua aceito como fallback.
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
@@ -51,12 +53,12 @@ Deno.serve(async (req) => {
     return json({ error: 'Sessão inválida.' }, 401);
   }
 
-  const hook = Deno.env.get('NETLIFY_BUILD_HOOK');
+  const hook = Deno.env.get('BUILD_HOOK') ?? Deno.env.get('NETLIFY_BUILD_HOOK');
   if (!hook) {
     await admin.from('publish_events').insert({
       user_id: usuario.user.id,
       status: 'falhou',
-      mensagem: 'NETLIFY_BUILD_HOOK não configurado.',
+      mensagem: 'BUILD_HOOK não configurado.',
     });
     return json({ error: 'Build hook não configurado no Supabase.' }, 500);
   }
@@ -68,7 +70,7 @@ Deno.serve(async (req) => {
   });
 
   if (!resposta.ok) {
-    const mensagem = `Netlify respondeu ${resposta.status}.`;
+    const mensagem = `Hospedagem respondeu ${resposta.status}.`;
     await admin.from('publish_events').insert({
       user_id: usuario.user.id,
       status: 'falhou',

@@ -142,7 +142,7 @@ export async function excluirCliente(id: string): Promise<void> {
 export async function publicar(): Promise<string> {
   if (!supabase) {
     await esperar(1400);
-    return 'Publicação simulada no modo demonstração. No ambiente real o Netlify gera o site em cerca de 1 minuto.';
+    return 'Publicação simulada no modo demonstração. No ambiente real o site é gerado em cerca de 1 minuto.';
   }
 
   const { data, error } = await supabase.functions.invoke('publish', {

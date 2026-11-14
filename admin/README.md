@@ -30,7 +30,7 @@ publicado nesse modo.
 5. Em **Authentication → Providers → Email**, desligue **Allow new users to
    sign up**. O painel não tem cadastro.
 6. Em **Project Settings → API**, copie a **Project URL** e a **anon public
-   key** para o `.env` (e para as variáveis do Netlify).
+   key** para o `.env` (e para as variáveis do Cloudflare Pages).
 
 A migration já cria:
 
@@ -42,18 +42,20 @@ A migration já cria:
 ## Publicar o site pelo painel
 
 O botão **Publicar site** chama a Edge Function `publish`, que dispara o build
-hook do Netlify. Para configurar:
+hook do Cloudflare Pages. Para configurar:
 
 ```bash
-# 1. No Netlify: Site configuration → Build & deploy → Build hooks → Add build hook
-#    (escolha o site do cardápio, não o do painel) e copie a URL.
+# 1. No Cloudflare: projeto do site → Settings → Builds & deployments →
+#    Deploy hooks → Add deploy hook. Copie a URL.
 
 # 2. Publique a função e guarde o segredo. --use-api dispensa Docker.
 npx supabase login
 npx supabase functions deploy publish --use-api --remote=SEU_PROJECT_REF
-npx supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/SEU_HOOK \
+npx supabase secrets set BUILD_HOOK=https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/SEU_HOOK \
   --remote=SEU_PROJECT_REF
 ```
+
+O nome antigo `NETLIFY_BUILD_HOOK` continua aceito como fallback.
 
 O `SUPABASE_URL` e a `SERVICE_ROLE_KEY` são injetadas automaticamente pelo
 Supabase em toda Edge Function.
@@ -61,21 +63,24 @@ Supabase em toda Edge Function.
 Sem a função, o botão mostra “A função publish ainda não foi publicada” — o
 resto do painel continua funcionando.
 
-## Deploy (Netlify)
+## Deploy (Cloudflare Pages)
 
-O painel é um **segundo site** no Netlify, no mesmo repositório:
+O painel é um **segundo projeto** no Cloudflare Pages, no mesmo repositório:
 
-1. **Add new site → Import an existing project** e escolha o repositório.
-2. Em **Base directory**, coloque `admin` (o Netlify passa a ler
-   `admin/netlify.toml`).
-3. Confirme build `npm ci` e publish `dist`.
-4. Em **Environment variables**, adicione:
+1. **Workers & Pages → Create → Pages → Connect to Git** e escolha o repositório.
+2. Configure o projeto:
+   - **Root directory**: `admin`
+   - **Build command**: `npm ci && npm run build`
+   - **Build output directory**: `dist`
+   - **Variável**: `NODE_VERSION=22`
+3. Em **Environment variables**, adicione:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-5. Em **Domain management**, adicione `admin.flowizehub.com`.
+4. Em **Custom domains**, adicione `admin.flowizehub.com`.
 
-O `admin/netlify.toml` já cuida do redirecionamento da SPA, do `noindex` e dos
-headers de segurança.
+O `public/_headers` já cuida do `noindex`, dos headers de segurança e do cache.
+O painel não tem `404.html`, então o Cloudflare Pages faz o fallback da SPA
+automaticamente (qualquer rota desconhecida cai no `index.html`).
 
 > A anon key pode ficar no navegador: quem protege os dados é o RLS. A
 > `service_role` **nunca** entra aqui — ela só é usada no build do site e na
@@ -84,13 +89,12 @@ headers de segurança.
 ## Build do site com os dados do Supabase
 
 O site (`../web`) continua estático. No build, ele lê a tabela `clients` quando
-estas variáveis existem no Netlify:
+estas variáveis existem no Cloudflare Pages:
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Sem elas, o build usa os JSONs locais de `web/src/data/clientes` — é o que
-acontece hoje no deploy.
+Sem elas, o build usa os JSONs locais de `web/src/data/clientes`.
 
 ## Schema compartilhado
 
