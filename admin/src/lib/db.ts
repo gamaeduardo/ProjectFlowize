@@ -1,6 +1,6 @@
-import { gravarDemo, lerDemo, resetarDemo } from './demo';
+import { gravarDemo, gravarPagamentosDemo, lerDemo, lerPagamentosDemo, resetarDemo } from './demo';
 import { supabase } from './supabase';
-import type { Cliente, ClienteEntrada, EventoPublicacao } from './types';
+import type { Cliente, ClienteEntrada, EventoPublicacao, Pagamento } from './types';
 
 export const modoDemo = !supabase;
 
@@ -206,3 +206,100 @@ export async function enviarFoto(arquivo: File, slug: string): Promise<string> {
 }
 
 export { resetarDemo };
+
+/* -------------------------------------------------------------------------- */
+/* Financeiro (Fase 3)                                                        */
+/* -------------------------------------------------------------------------- */
+
+export async function listarPagamentos(limite = 60): Promise<Pagamento[]> {
+  if (!supabase) {
+    return lerPagamentosDemo()
+      .slice()
+      .sort((a, b) => (a.pago_em < b.pago_em ? 1 : a.pago_em > b.pago_em ? -1 : 0))
+      .slice(0, limite);
+  }
+
+  const { data, error } = await supabase
+    .from('payments')
+    .select('*')
+    .order('pago_em', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limite);
+
+  if (error) throw new Error(mensagemDeErro(error));
+  return (data ?? []) as Pagamento[];
+}
+
+export async function registrarPagamento(dados: {
+  cliente: Cliente;
+  valor: number;
+  pagoEm: string;
+  referencia: string;
+  novoPaidUntil: string;
+}): Promise<void> {
+  const { cliente, valor, pagoEm, referencia, novoPaidUntil } = dados;
+
+  if (!supabase) {
+    await esperar(250);
+    const lista = lerDemo();
+    const indice = lista.findIndex((item) => item.id === cliente.id);
+    if (indice < 0) throw new Error('Cliente não encontrado.');
+
+    const pagamento: Pagamento = {
+      id: `demo-${crypto.randomUUID()}`,
+      client_id: cliente.id,
+      valor,
+      pago_em: pagoEm,
+      referencia: referencia || null,
+      paid_until_anterior: cliente.paid_until,
+      paid_until_novo: novoPaidUntil,
+      created_at: new Date().toISOString(),
+    };
+
+    const pagamentos = lerPagamentosDemo();
+    pagamentos.push(pagamento);
+    gravarPagamentosDemo(pagamentos);
+
+    lista[indice] = { ...lista[indice], paid_until: novoPaidUntil };
+    gravarDemo(lista);
+    return;
+  }
+
+  const { error } = await supabase.rpc('registrar_pagamento', {
+    p_client_id: cliente.id,
+    p_valor: valor,
+    p_pago_em: pagoEm,
+    p_referencia: referencia || null,
+    p_novo_paid_until: novoPaidUntil,
+  });
+
+  if (error) throw new Error(traduzirFinanceiro(mensagemDeErro(error)));
+}
+
+export async function apagarPagamento(id: string): Promise<void> {
+  if (!supabase) {
+    const pagamentos = lerPagamentosDemo();
+    const alvo = pagamentos.find((pagamento) => pagamento.id === id);
+    gravarPagamentosDemo(pagamentos.filter((pagamento) => pagamento.id !== id));
+
+    if (alvo) {
+      const lista = lerDemo();
+      const indice = lista.findIndex((cliente) => cliente.id === alvo.client_id);
+      if (indice >= 0) {
+        lista[indice] = { ...lista[indice], paid_until: alvo.paid_until_anterior };
+        gravarDemo(lista);
+      }
+    }
+    return;
+  }
+
+  const { error } = await supabase.rpc('estornar_pagamento', { p_id: id });
+  if (error) throw new Error(traduzirFinanceiro(mensagemDeErro(error)));
+}
+
+function traduzirFinanceiro(mensagem: string): string {
+  if (/could not find the function|does not exist/i.test(mensagem)) {
+    return 'A função registrar_pagamento ainda não existe no banco. Rode supabase/migrations/20261114180000_financeiro.sql no SQL Editor.';
+  }
+  return mensagem;
+}

@@ -1,6 +1,6 @@
 import lanchonete from '../../../web/src/data/clientes/lanchonete-da-ana.json';
 import pizzaria from '../../../web/src/data/clientes/pizzaria-do-joao.json';
-import type { Cliente } from './types';
+import type { Cliente, Pagamento } from './types';
 
 /**
  * Modo demonstração: usa os mesmos JSONs de web/src/data/clientes e guarda as
@@ -54,11 +54,29 @@ function montar(slug: string, dados: JsonCliente): Cliente {
   };
 }
 
+/** Data local em YYYY-MM-DD (sem o deslocamento de fuso do toISOString). */
+function iso(data: Date): string {
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const dia = String(data.getDate()).padStart(2, '0');
+  return `${data.getFullYear()}-${mes}-${dia}`;
+}
+
 export function semearDemo(): Cliente[] {
-  return [
-    montar('lanchonete-da-ana', lanchonete as unknown as JsonCliente),
-    montar('pizzaria-do-joao', pizzaria as unknown as JsonCliente),
-  ];
+  const agora = new Date();
+  const umMesAtras = new Date(agora.getFullYear(), agora.getMonth() - 1, 10);
+  const daquiVinteDias = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 20);
+
+  const ana = montar('lanchonete-da-ana', lanchonete as unknown as JsonCliente);
+  ana.valor_mensal = 149;
+  ana.dia_vencimento = 10;
+  ana.paid_until = iso(umMesAtras); // em atraso, para testar a cobrança
+
+  const joao = montar('pizzaria-do-joao', pizzaria as unknown as JsonCliente);
+  joao.valor_mensal = 249;
+  joao.dia_vencimento = 5;
+  joao.paid_until = iso(daquiVinteDias); // a vencer
+
+  return [ana, joao];
 }
 
 export function lerDemo(): Cliente[] {
@@ -88,4 +106,29 @@ export function resetarDemo(): Cliente[] {
   const semente = semearDemo();
   gravarDemo(semente);
   return semente;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pagamentos (Fase 3)                                                        */
+/* -------------------------------------------------------------------------- */
+
+const CHAVE_PAGAMENTOS = 'flowize:demo:pagamentos:v1';
+
+export function lerPagamentosDemo(): Pagamento[] {
+  try {
+    const bruto = localStorage.getItem(CHAVE_PAGAMENTOS);
+    if (!bruto) return [];
+    const dados = JSON.parse(bruto) as Pagamento[];
+    return Array.isArray(dados) ? dados : [];
+  } catch {
+    return [];
+  }
+}
+
+export function gravarPagamentosDemo(pagamentos: Pagamento[]): void {
+  try {
+    localStorage.setItem(CHAVE_PAGAMENTOS, JSON.stringify(pagamentos));
+  } catch {
+    // Sem espaço ou modo privado: o painel segue funcionando na sessão.
+  }
 }

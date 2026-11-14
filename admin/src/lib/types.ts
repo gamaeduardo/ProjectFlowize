@@ -47,3 +47,15 @@ export type EventoPublicacao = {
   status: 'disparado' | 'falhou';
   mensagem: string | null;
 };
+
+/** Linha da tabela `payments`. */
+export type Pagamento = {
+  id: string;
+  client_id: string;
+  valor: number;
+  pago_em: string;
+  referencia: string | null;
+  paid_until_anterior: string | null;
+  paid_until_novo: string | null;
+  created_at: string;
+};

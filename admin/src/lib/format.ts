@@ -3,16 +3,21 @@ export const money = (valor: number | null | undefined) =>
     ? '—'
     : Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+/** Datas sem hora (`2026-11-10`) são lidas ao meio-dia local para não voltar um dia. */
+function comoData(iso: string): Date {
+  return /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(`${iso}T12:00:00`) : new Date(iso);
+}
+
 export const dataCurta = (iso: string | null | undefined) => {
   if (!iso) return '—';
-  const data = new Date(iso);
+  const data = comoData(iso);
   if (Number.isNaN(data.getTime())) return '—';
   return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
 export const dataHora = (iso: string | null | undefined) => {
   if (!iso) return '—';
-  const data = new Date(iso);
+  const data = comoData(iso);
   if (Number.isNaN(data.getTime())) return '—';
   return data.toLocaleString('pt-BR', {
     day: '2-digit',

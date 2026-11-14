@@ -731,7 +731,181 @@ textarea {
   margin-left: auto;
 }
 
+/* Navegação do topo ----------------------------------------------------- */
+.nav {
+  display: flex;
+  gap: 4px;
+  margin: 0 auto 0 20px;
+}
+
+.nav a {
+  padding: 7px 12px;
+  border-radius: 8px;
+  color: var(--mudo);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav a:hover {
+  background: #efe6da;
+  color: var(--tinta);
+}
+
+.nav a[aria-current='page'] {
+  background: #f1e7dc;
+  color: var(--tinta);
+}
+
+/* Financeiro ------------------------------------------------------------ */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.resumo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 18px;
+  border: 1px solid var(--linha);
+  border-radius: 14px;
+  background: var(--branco);
+  box-shadow: var(--sombra);
+}
+
+.resumo-rotulo {
+  color: var(--mudo);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.resumo-item strong {
+  font-family: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+}
+
+.resumo-item small {
+  color: var(--mudo);
+  font-size: 0.78rem;
+}
+
+.resumo-alerta {
+  border-color: #eccaca;
+  background: #fff7f7;
+}
+
+.resumo-alerta strong {
+  color: #a3241c;
+}
+
+.chip {
+  padding: 7px 13px;
+  border: 1px solid var(--linha-forte);
+  border-radius: 999px;
+  background: var(--branco);
+  color: var(--mudo);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+
+.chip-ativo {
+  border-color: var(--tinta);
+  background: var(--tinta);
+  color: #fff;
+}
+
+.chip-ativo:hover {
+  color: #fff;
+}
+
+.selo-fin-atrasado {
+  background: #f6e2e2;
+  color: #a3241c;
+}
+
+.selo-fin-vence-hoje {
+  background: #fdf1d8;
+  color: var(--amarelo);
+}
+
+.selo-fin-a-vencer {
+  background: #e7eef8;
+  color: #2b5c8c;
+}
+
+.selo-fin-em-dia {
+  background: #e2f3e9;
+  color: var(--verde);
+}
+
+/* Modal ----------------------------------------------------------------- */
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #1c121099;
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--branco);
+  box-shadow: 0 30px 80px #1c121033;
+}
+
+.modal h2 {
+  font-size: 1.15rem;
+}
+
+.modal > p {
+  margin: 4px 0 16px;
+}
+
+.modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
 @media (max-width: 820px) {
+  .resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav {
+    margin: 0;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding-top: 8px;
+  }
+
+  .topbar-interno {
+    flex-wrap: wrap;
+  }
+
   .grade,
   .grade-3 {
     grid-template-columns: 1fr;
