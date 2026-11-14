@@ -55,7 +55,8 @@ npx supabase secrets set BUILD_HOOK=https://api.cloudflare.com/client/v4/pages/w
   --remote=SEU_PROJECT_REF
 ```
 
-O nome antigo `NETLIFY_BUILD_HOOK` continua aceito como fallback.
+O nome antigo `NETLIFY_BUILD_HOOK` continua aceito como fallback (é o nome que a
+função publicada hoje usa).
 
 O `SUPABASE_URL` e a `SERVICE_ROLE_KEY` são injetadas automaticamente pelo
 Supabase em toda Edge Function.

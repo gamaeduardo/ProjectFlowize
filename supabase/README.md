@@ -7,7 +7,7 @@
 - `seed.sql` — dois clientes de demonstração (opcional, pode rodar de novo sem
   duplicar).
 - `functions/publish/index.ts` — Edge Function que dispara o build hook do
-  Netlify depois de validar a sessão.
+  Cloudflare Pages depois de validar a sessão.
 
 ## Aplicar
 
@@ -30,7 +30,7 @@ npx supabase login
 # --use-api empacota no servidor da Supabase (sem Docker)
 npx supabase functions deploy publish --use-api --remote=vzjpbadtbjgmwxfphftu
 
-npx supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/SEU_HOOK \
+npx supabase secrets set BUILD_HOOK=https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/SEU_HOOK \
   --remote=vzjpbadtbjgmwxfphftu
 ```
 
@@ -52,6 +52,6 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 
 - `anon` não tem nenhuma policy: o site público **não** consulta o banco.
 - `authenticated` lê e escreve em `clients` e lê `publish_events`.
-- O build do site usa a `service_role` apenas no servidor do Netlify.
+- O build do site usa a `service_role` apenas no servidor de build (Cloudflare Pages).
 
 Desligue o cadastro público em **Authentication → Providers → Email**.

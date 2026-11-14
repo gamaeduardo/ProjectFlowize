@@ -26,7 +26,7 @@ const canonical = new URL(caminho, site).href;
 const ogImage = new URL(image ?? '/og-default.png', site).href;
 const umamiId = umamiProp || import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
 // O Umami só conta visitas nos hostnames listados. Enquanto o domínio não está
-// conectado, dá para incluir o subdomínio do Netlify para testar.
+// conectado, dá para incluir o subdomínio do Cloudflare Pages para testar.
 const umamiDomains =
   import.meta.env.PUBLIC_UMAMI_DOMAINS || 'flowizehub.com,www.flowizehub.com';
 ---

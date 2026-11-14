@@ -109,8 +109,8 @@ Detalhes do site em [`web/README.md`](web/README.md) e do painel em
 7. Quando o domínio estiver comprado, adicione `flowizehub.com` e
    `admin.flowizehub.com` como Custom domains.
 
-> Os `netlify.toml` ficaram como legado da hospedagem antiga; podem ser
-> apagados depois que os sites do Netlify forem removidos.
+> A versão publicada da Edge Function aceita o segredo `NETLIFY_BUILD_HOOK`
+> por compatibilidade com a hospedagem antiga. Em um redeploy, use `BUILD_HOOK`.
 
 ## Próximas fases
 
