@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
 import QRCode from 'qrcode';
-import { clientes } from '../../lib/clients';
+import { getClientes } from '../../lib/clients';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const clientes = await getClientes();
   return clientes.map(({ slug }) => ({ params: { slug } }));
 }
 

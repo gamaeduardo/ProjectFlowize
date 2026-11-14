@@ -2,10 +2,10 @@
 import Base from '../layouts/Base.astro';
 import Marca from '../components/marca/Marca.astro';
 import Cardapinho from '../components/landing/Cardapinho.astro';
-import { clientes } from '../lib/clients';
+import { getClientes } from '../lib/clients';
 import { site, siteUrl, waLink } from '../lib/site';
 
-const exemplos = clientes.filter(({ cfg }) => cfg.status !== 'inativo');
+const exemplos = (await getClientes()).filter(({ cfg }) => cfg.status !== 'inativo');
 
 const faq = [
   {

@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-import { clientes } from '../../lib/clients';
+import { getClientes } from '../../lib/clients';
 import { renderOg } from '../../lib/og';
 import type { MenuConfig } from '../../lib/schema';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const clientes = await getClientes();
   return clientes.map(({ slug, cfg }) => ({ params: { slug }, props: { cfg } }));
 }
 

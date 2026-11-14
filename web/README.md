@@ -75,6 +75,21 @@ PUBLIC_SITE_URL=https://flowizehub.com
 PUBLIC_UMAMI_WEBSITE_ID=
 ```
 
+### Dados do Supabase no build
+
+Para o site sair do Supabase em vez dos JSONs locais, defina **no Netlify**
+(Environment variables):
+
+```
+SUPABASE_URL=https://SEU-PROJETO.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+Sem o prefixo `PUBLIC_`, essas variáveis existem só durante o build e não vão
+para o navegador. Sem elas, o build usa `src/data/clientes/*.json` — útil para
+desenvolver e como fallback. Os dois caminhos passam pelo mesmo schema Zod: um
+cliente inválido quebra o build.
+
 ## Deploy (Netlify)
 
 O `netlify.toml` da raiz já define `base = web`, `publish = dist` e

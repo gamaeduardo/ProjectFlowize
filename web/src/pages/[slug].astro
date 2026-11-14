@@ -2,11 +2,12 @@
 import Base from '../layouts/Base.astro';
 import Completo from '../components/menu/Completo.astro';
 import Simples from '../components/menu/Simples.astro';
-import { clientes } from '../lib/clients';
+import { getClientes } from '../lib/clients';
 import { cssVars } from '../lib/theme';
 import type { MenuConfig } from '../lib/schema';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const clientes = await getClientes();
   return clientes.map(({ slug, cfg }) => ({ params: { slug }, props: { cfg } }));
 }
 

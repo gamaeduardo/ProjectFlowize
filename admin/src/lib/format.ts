@@ -1,0 +1,39 @@
+export const money = (valor: number | null | undefined) =>
+  valor == null
+    ? '—'
+    : Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+export const dataCurta = (iso: string | null | undefined) => {
+  if (!iso) return '—';
+  const data = new Date(iso);
+  if (Number.isNaN(data.getTime())) return '—';
+  return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+export const dataHora = (iso: string | null | undefined) => {
+  if (!iso) return '—';
+  const data = new Date(iso);
+  if (Number.isNaN(data.getTime())) return '—';
+  return data.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+export function slugify(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+export const numero = (valor: string): number | null => {
+  if (valor.trim() === '') return null;
+  const convertido = Number(valor.replace(',', '.'));
+  return Number.isFinite(convertido) ? convertido : null;
+};

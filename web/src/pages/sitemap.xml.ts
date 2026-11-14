@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-import { clientes } from '../lib/clients';
+import { getClientes } from '../lib/clients';
 
 const site = (process.env.PUBLIC_SITE_URL || 'https://flowizehub.com').replace(/\/$/, '');
 
-export const GET: APIRoute = () => {
+export const GET: APIRoute = async () => {
+  const clientes = await getClientes();
   const urls = [
     `${site}/`,
     ...clientes
