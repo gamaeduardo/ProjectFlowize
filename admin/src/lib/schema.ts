@@ -34,6 +34,11 @@ export const menuConfigSchema = z.object({
   nome: z.string().min(1),
   slogan: z.string().optional(),
   endereco: z.string().optional(),
+  maps_url: z
+    .string()
+    .url('Use a URL completa do Maps, ex.: https://maps.app.goo.gl/…')
+    .optional(),
+  analytics_website_id: z.string().optional(),
   whatsapp: z
     .string()
     .regex(/^\d{10,15}$/, 'Use apenas dígitos, ex.: 5511999999999.'),

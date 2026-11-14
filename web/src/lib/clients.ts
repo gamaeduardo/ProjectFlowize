@@ -11,6 +11,8 @@ type LinhaCliente = {
   whatsapp: string;
   instagram: string | null;
   endereco: string | null;
+  maps_url: string | null;
+  analytics_website_id: string | null;
   tempo: string | null;
   taxa: number | string | null;
   horario: { abre: string; fecha: string } | null;
@@ -82,6 +84,8 @@ async function carregarDoSupabase(url: string, chave: string): Promise<Cliente[]
         nome: linha.nome,
         slogan: linha.slogan ?? undefined,
         endereco: linha.endereco ?? undefined,
+        maps_url: linha.maps_url ?? undefined,
+        analytics_website_id: linha.analytics_website_id ?? undefined,
         whatsapp: linha.whatsapp,
         instagram: linha.instagram ?? undefined,
         tempo: linha.tempo ?? undefined,

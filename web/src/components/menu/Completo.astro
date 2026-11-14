@@ -42,7 +42,17 @@ const menorPreco = (ops: { preco: number }[]) => Math.min(...ops.map((op) => op.
 <section class="info">
   <div class="logo">{logo}</div>
   <h1>{cfg.nome}</h1>
-  {cfg.endereco && <p class="end">{cfg.endereco}</p>}
+  {cfg.endereco && (
+    <p class="end">
+      {cfg.maps_url ? (
+        <a href={cfg.maps_url} target="_blank" rel="noopener">
+          {cfg.endereco}
+        </a>
+      ) : (
+        cfg.endereco
+      )}
+    </p>
+  )}
   <div class="meta">
     {
       cfg.horario && (
@@ -235,6 +245,7 @@ const menorPreco = (ops: { preco: number }[]) => Math.min(...ops.map((op) => op.
   .logo{position:absolute;top:-36px;left:20px;width:72px;height:72px;border-radius:50%;background:var(--destaque);color:var(--tdest);border:4px solid var(--fundo);display:grid;place-items:center;font:800 1.5rem "Bricolage Grotesque",sans-serif}
   .info h1{margin:0;font-size:1.7rem;letter-spacing:-.02em;line-height:1.1}
   .end{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+  .end a{color:inherit;text-decoration:underline;text-underline-offset:2px}
   .meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;color:var(--muted);font-size:.92rem}
   .on{color:#1a8a4a;font-weight:600}.off{color:var(--destaque);font-weight:600}
   .cats{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:8px;overflow-x:auto;padding:10px 20px;background:var(--fundo);border-bottom:1px solid var(--linha);scrollbar-width:none}

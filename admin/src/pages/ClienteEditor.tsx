@@ -130,6 +130,8 @@ export default function ClienteEditor() {
       nome: dados.nome.trim(),
       slogan: dados.slogan?.trim() || undefined,
       endereco: dados.endereco?.trim() || undefined,
+      maps_url: dados.maps_url?.trim() || undefined,
+      analytics_website_id: dados.analytics_website_id?.trim() || undefined,
       whatsapp: dados.whatsapp.replace(/\D/g, ''),
       instagram: dados.instagram?.trim() || undefined,
       tempo: dados.tempo?.trim() || undefined,

@@ -7,6 +7,8 @@ interface Props {
   image?: string;
   robots?: string;
   jsonLd?: Record<string, unknown>;
+  /** Sobrescreve o site do Umami (útil quando o cliente tem um site próprio no Pro). */
+  umamiId?: string;
 }
 
 const {
@@ -15,13 +17,14 @@ const {
   image,
   robots = 'index,follow',
   jsonLd,
+  umamiId: umamiProp,
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://flowizehub.com');
 const caminho = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/');
 const canonical = new URL(caminho, site).href;
 const ogImage = new URL(image ?? '/og-default.png', site).href;
-const umamiId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+const umamiId = umamiProp || import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
 ---
 
 <!doctype html>
