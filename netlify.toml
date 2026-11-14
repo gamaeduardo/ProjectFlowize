@@ -1,8 +1,9 @@
 [build]
   base = "web"
-  # --force é necessário para instalar o binding WASM do compilador do Astro
-  # (declarado para cpu wasm32) em máquinas x64.
-  command = "npm ci --force && npm run build"
+  # O `force=true` em web/.npmrc libera o binding WASM do compilador do Astro
+  # (declarado para cpu wasm32) em máquinas x64. Vale também para o install
+  # automático que o Netlify roda antes deste comando.
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [build.environment]

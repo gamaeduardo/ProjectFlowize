@@ -36,7 +36,7 @@ Cardápios digitais com pedido direto no WhatsApp. A marca vive em
 
 ```bash
 cd web
-npm ci --force
+npm ci
 npm run dev
 ```
 

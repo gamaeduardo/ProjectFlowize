@@ -11,15 +11,17 @@ avisa no terminal enquanto ele estiver com o número de exemplo.
 ## Desenvolvimento
 
 ```bash
-npm ci --force
+npm ci
 npm run dev
 ```
 
-O `--force` é necessário porque o compilador do Astro é instalado também na
-versão WASM (`@astrojs/compiler-binding-wasm32-wasi`), declarada para
-`cpu: wasm32`. Os scripts `npm run dev` e `npm run build` já carregam o loader
-que troca o binding nativo pelo WASM — necessário em CPUs x64 sem AVX2, onde o
-binding nativo morre com `SIGILL`.
+O compilador do Astro é instalado também na versão WASM
+(`@astrojs/compiler-binding-wasm32-wasi`), declarada para `cpu: wasm32`. Em
+máquinas x64 o npm recusaria esse pacote com `EBADPLATFORM`, então o
+`.npmrc` do projeto define `force=true` — vale para `npm ci`, `npm install` e
+para o install automático do Netlify. Os scripts `npm run dev` e
+`npm run build` carregam o loader que troca o binding nativo pelo WASM —
+necessário em CPUs x64 sem AVX2, onde o binding nativo morre com `SIGILL`.
 
 Abra `http://localhost:4321/pizzaria-do-joao` ou `http://localhost:4321/lanchonete-da-ana`.
 
@@ -76,7 +78,7 @@ PUBLIC_UMAMI_WEBSITE_ID=
 ## Deploy (Netlify)
 
 O `netlify.toml` da raiz já define `base = web`, `publish = dist` e
-`command = "npm ci --force && npm run build"`.
+`command = "npm ci && npm run build"`.
 
 1. Suba o repositório no GitHub.
 2. No Netlify: **Add new site → Import an existing project** e escolha o repositório.
