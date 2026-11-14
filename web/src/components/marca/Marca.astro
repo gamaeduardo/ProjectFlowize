@@ -1,0 +1,49 @@
+---
+interface Props {
+  href?: string;
+  tom?: 'escuro' | 'claro';
+}
+
+const { href = '/', tom = 'escuro' } = Astro.props;
+---
+
+<a class:list={['marca', tom]} href={href} aria-label="Flowize — página inicial">
+  <span class="simbolo" aria-hidden="true">F</span>
+  <span class="nome">Flowize</span>
+</a>
+
+<style>
+  .marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--marca-cor, #1c1210);
+    text-decoration: none;
+    font-family: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 1.18rem;
+    letter-spacing: -0.03em;
+  }
+
+  .marca.claro {
+    --marca-cor: #fff;
+  }
+
+  .simbolo {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--acento, #d62828);
+    color: #fff;
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+
+  .marca:focus-visible {
+    outline: 3px solid var(--acento, #d62828);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+</style>

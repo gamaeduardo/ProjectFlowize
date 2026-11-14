@@ -2,6 +2,12 @@
 
 Site da marca (`/`) e cardápios dos clientes (`/<slug>`), em Astro.
 
+## Conteúdo da marca
+
+O nome, WhatsApp, Instagram e e-mail usados na landing e nos CTAs ficam em
+`src/lib/site.ts`. **Troque o WhatsApp placeholder antes de publicar** — o build
+avisa no terminal enquanto ele estiver com o número de exemplo.
+
 ## Desenvolvimento
 
 ```bash
@@ -29,7 +35,12 @@ O build gera páginas estáticas em `dist/`, além de:
 - `/og/<slug>.png` — imagem de compartilhamento de cada cardápio
 - `/og-default.png` — imagem padrão da marca
 - `/qr/<slug>.svg` — QR code do cardápio
+- `/exemplos/<slug>.png` — capturas reais usadas na seção de exemplos da landing
 - `/sitemap.xml` — só clientes com status `ativo`
+- `/404.html` — página de erro da marca
+
+As capturas em `public/exemplos/` são manuais: se mudar os cardápios de
+demonstração, refaça os prints com o site rodando.
 
 ## Adicionar um cliente
 
@@ -62,7 +73,20 @@ PUBLIC_SITE_URL=https://flowizehub.com
 PUBLIC_UMAMI_WEBSITE_ID=
 ```
 
-## Deploy
+## Deploy (Netlify)
 
-Netlify com `base = web`, `publish = dist` e `npm ci --force && npm run build`
-(ver `netlify.toml` na raiz).
+O `netlify.toml` da raiz já define `base = web`, `publish = dist` e
+`command = "npm ci --force && npm run build"`.
+
+1. Suba o repositório no GitHub.
+2. No Netlify: **Add new site → Import an existing project** e escolha o repositório.
+3. Confirme as configurações de build (elas vêm do `netlify.toml`).
+4. Em **Domain management**, adicione `flowizehub.com` e `www.flowizehub.com`.
+5. No registrador do domínio, crie os registros que o Netlify indicar
+   (normalmente um `A` para o domínio raiz e um `CNAME` para `www`).
+6. Ative o HTTPS automático (Let's Encrypt) no Netlify.
+7. Em **Site configuration → Environment variables**, preencha
+   `PUBLIC_UMAMI_WEBSITE_ID` quando o Umami estiver configurado.
+
+O redirecionamento de `www.flowizehub.com` para `flowizehub.com` já está no
+`netlify.toml`, junto com os headers de segurança e cache.

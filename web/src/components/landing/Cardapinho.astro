@@ -1,0 +1,332 @@
+---
+import { artSvg } from '../../lib/art';
+import { money } from '../../lib/format';
+
+const itens = [
+  {
+    nome: 'Marguerita',
+    desc: 'Molho, muçarela e manjericão',
+    preco: 42,
+    arte: { tipo: 'pizza', cores: ['#b5342b', '#e9e3d0', '#7fa23c'], fundo: 'none' },
+  },
+  {
+    nome: 'Calabresa',
+    desc: 'Calabresa fatiada e cebola',
+    preco: 46,
+    arte: { tipo: 'pizza', cores: ['#a3241c', '#d9b48a', '#7a2e1a'], fundo: 'none' },
+  },
+  {
+    nome: 'Refrigerante',
+    desc: 'Lata 350 ml',
+    preco: 6,
+    arte: { tipo: 'lata', cores: ['#b5342b', '#e9e3d0'], fundo: 'none' },
+  },
+];
+---
+
+<div class="palco" aria-hidden="true">
+  <span class="chip chip-topo">Sem comissão por pedido</span>
+
+  <div class="telefone">
+    <div class="tela">
+      <div class="capa">
+        <span>Forno a lenha de verdade</span>
+      </div>
+
+      <div class="info">
+        <span class="logo">PJ</span>
+        <b>Pizzaria do João</b>
+        <small>Aberto até 23:30 · Entrega R$ 6</small>
+      </div>
+
+      <div class="cats">
+        <span class="ativo">Mais pedidos</span>
+        <span>Pizzas</span>
+        <span>Bebidas</span>
+      </div>
+
+      <div class="itens">
+        {
+          itens.map((item) => (
+            <div class="item">
+              <span class="texto">
+                <b>{item.nome}</b>
+                <small>{item.desc}</small>
+                <strong>{money(item.preco)}</strong>
+              </span>
+              <span class="arte" set:html={artSvg(item.arte)} />
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="barra">
+        <span>Ver pedido (2)</span>
+        <b>{money(88)}</b>
+      </div>
+    </div>
+  </div>
+
+  <span class="chip chip-base">Pedido direto no WhatsApp</span>
+</div>
+
+<style>
+  .palco {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 560px;
+  }
+
+  .telefone {
+    position: relative;
+    width: min(300px, 82vw);
+    padding: 9px;
+    border-radius: 44px;
+    background: #0d0807;
+    box-shadow:
+      0 40px 80px #00000066,
+      0 0 0 1px #ffffff1f;
+    transform: rotate(-2deg);
+  }
+
+  .telefone::before {
+    content: '';
+    position: absolute;
+    top: 17px;
+    left: 50%;
+    z-index: 3;
+    width: 82px;
+    height: 18px;
+    border-radius: 999px;
+    background: #0d0807;
+    transform: translateX(-50%);
+  }
+
+  .tela {
+    display: flex;
+    flex-direction: column;
+    height: 520px;
+    overflow: hidden;
+    border-radius: 36px;
+    background: #fff;
+    color: #1f1a18;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+  }
+
+  .capa {
+    display: flex;
+    align-items: flex-end;
+    height: 96px;
+    padding: 22px 16px 12px;
+    background: radial-gradient(circle at 78% 55%, #6b1a14 0, #1c1210 62%);
+    color: #fff;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .info {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 16px 8px;
+  }
+
+  .logo {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-top: -26px;
+    margin-bottom: 4px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #d62828;
+    color: #fff;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .info b {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: -0.02em;
+  }
+
+  .info small {
+    margin-top: 1px;
+    color: #6d625c;
+    font-size: 0.68rem;
+  }
+
+  .cats {
+    display: flex;
+    gap: 5px;
+    padding: 6px 16px 10px;
+    overflow: hidden;
+    border-bottom: 1px solid #eee4d9;
+  }
+
+  .cats span {
+    flex: none;
+    padding: 4px 9px;
+    border-radius: 99px;
+    background: #f3efec;
+    font-size: 0.62rem;
+    font-weight: 600;
+  }
+
+  .cats .ativo {
+    background: #d62828;
+    color: #fff;
+  }
+
+  .itens {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 16px;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0e8de;
+  }
+
+  .item:last-child {
+    border-bottom: 0;
+  }
+
+  .texto {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .texto b {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .texto small {
+    overflow: hidden;
+    color: #7a6d66;
+    font-size: 0.62rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .texto strong {
+    margin-top: 2px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .arte {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    overflow: hidden;
+    border-radius: 11px;
+    background: #f3efec;
+  }
+
+  .arte :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 12px 12px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: #d62828;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .barra b {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.8rem;
+  }
+
+  .chip {
+    position: absolute;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: #fff;
+    color: #1c1210;
+    box-shadow: 0 14px 34px #0000004d;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .chip::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1a8a4a;
+  }
+
+  .chip-topo {
+    top: 7%;
+    left: -4%;
+  }
+
+  .chip-base {
+    right: -2%;
+    bottom: -26px;
+  }
+
+  @media (max-width: 900px) {
+    .palco {
+      min-height: 540px;
+    }
+
+    .telefone {
+      transform: none;
+    }
+
+    .chip-topo {
+      left: 0;
+    }
+
+    .chip-base {
+      right: 0;
+      bottom: -18px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .chip {
+      padding: 7px 11px;
+      font-size: 0.7rem;
+    }
+
+    .tela {
+      height: 480px;
+    }
+  }
+</style>

@@ -1,0 +1,132 @@
+---
+import Base from '../layouts/Base.astro';
+import Marca from '../components/marca/Marca.astro';
+---
+
+<Base
+  title="Página não encontrada · Flowize"
+  description="A página que você tentou abrir não existe ou mudou de endereço."
+  robots="noindex,nofollow"
+>
+  <main class="nao-encontrada">
+    <div class="caixa">
+      <Marca />
+      <span class="codigo">404</span>
+      <h1>Essa página saiu do cardápio.</h1>
+      <p>O link pode ter mudado ou não existe mais. Você pode voltar para o início ou ver um exemplo de cardápio.</p>
+      <div class="acoes">
+        <a class="btn btn-primario" href="/">Voltar para o início</a>
+        <a class="btn btn-contorno" href="/pizzaria-do-joao">Ver um exemplo</a>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<style is:global>
+  :root {
+    --tinta: #1c1210;
+    --papel: #fbf8f4;
+    --acento: #d62828;
+    --linha: #e6dbcd;
+    --mudo: #6d625c;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--papel);
+    color: var(--tinta);
+    font: 16px/1.55 'Instrument Sans', system-ui, sans-serif;
+  }
+
+  h1 {
+    font-family: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  .nao-encontrada {
+    display: grid;
+    min-height: 100dvh;
+    place-items: center;
+    padding: 32px 24px;
+    background: radial-gradient(120% 120% at 85% 8%, #f6e9e6 0%, var(--papel) 58%);
+  }
+
+  .caixa {
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+  }
+
+  .caixa .marca {
+    justify-content: center;
+  }
+
+  .codigo {
+    display: block;
+    margin: 36px 0 6px;
+    color: var(--acento);
+    font: 800 3.2rem/1 'Bricolage Grotesque', sans-serif;
+    letter-spacing: -0.04em;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    line-height: 1.08;
+  }
+
+  p {
+    margin: 14px 0 0;
+    color: var(--mudo);
+  }
+
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 22px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .btn-primario {
+    background: var(--acento);
+    color: #fff;
+  }
+
+  .btn-primario:hover {
+    background: #b21f1f;
+  }
+
+  .btn-contorno {
+    border-color: var(--tinta);
+    color: var(--tinta);
+  }
+
+  .btn-contorno:hover {
+    background: var(--tinta);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--acento);
+    outline-offset: 3px;
+  }
+</style>

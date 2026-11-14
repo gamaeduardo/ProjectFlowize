@@ -3,8 +3,8 @@ import { renderOg } from '../lib/og';
 
 export const GET: APIRoute = async () => {
   const png = await renderOg({
-    titulo: 'Cardápios digitais para o seu negócio',
-    subtitulo: 'Peça pelo celular, sem comissão.',
+    titulo: 'Seu cardápio digital, com pedido no WhatsApp',
+    subtitulo: 'Sem comissão. Sem aplicativo. Direto no seu negócio.',
   });
 
   return new Response(png, {
