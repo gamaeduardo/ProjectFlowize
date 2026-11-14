@@ -45,15 +45,21 @@ O botão **Publicar site** chama a Edge Function `publish`, que dispara o build
 hook do Netlify. Para configurar:
 
 ```bash
-# no Netlify: Site configuration → Build & deploy → Build hooks → Add build hook
-supabase login
-supabase link --project-ref SEU_PROJECT_REF
-supabase functions deploy publish
-supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/SEU_HOOK
+# 1. No Netlify: Site configuration → Build & deploy → Build hooks → Add build hook
+#    (escolha o site do cardápio, não o do painel) e copie a URL.
+
+# 2. Publique a função e guarde o segredo. --use-api dispensa Docker.
+npx supabase login
+npx supabase functions deploy publish --use-api --remote=SEU_PROJECT_REF
+npx supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/SEU_HOOK \
+  --remote=SEU_PROJECT_REF
 ```
 
-Sem a função, o botão mostra o erro retornado pelo Supabase — o resto do painel
-continua funcionando.
+O `SUPABASE_URL` e a `SERVICE_ROLE_KEY` são injetadas automaticamente pelo
+Supabase em toda Edge Function.
+
+Sem a função, o botão mostra “A função publish ainda não foi publicada” — o
+resto do painel continua funcionando.
 
 ## Deploy (Netlify)
 

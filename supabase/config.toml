@@ -1,0 +1,7 @@
+# Configuração do Supabase CLI.
+# O project_id é o ref público do projeto (o mesmo que aparece na URL da API).
+project_id = "vzjpbadtbjgmwxfphftu"
+
+# A função exige a sessão do painel (JWT). O build hook nunca fica no navegador.
+[functions.publish]
+verify_jwt = true

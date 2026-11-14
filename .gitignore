@@ -10,3 +10,6 @@ dist/
 
 # Molde original do cardápio, mantido apenas como referência local.
 cardapio-final/
+
+# Cache da CLI do Supabase.
+supabase/.temp/

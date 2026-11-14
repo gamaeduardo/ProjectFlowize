@@ -12,6 +12,20 @@ function mensagemDeErro(erro: { message?: string } | null): string {
   return erro?.message ?? 'Erro inesperado.';
 }
 
+/** Explica os erros mais comuns do botão "Publicar site" sem jargão. */
+function traduzirPublicacao(mensagem: string): string {
+  if (/not found|404/i.test(mensagem)) {
+    return 'A função "publish" ainda não foi publicada no Supabase. Veja admin/README.md, seção "Publicar o site pelo painel".';
+  }
+  if (/failed to send a request|failed to fetch|network/i.test(mensagem)) {
+    return 'Não foi possível falar com o Supabase. Confira a conexão e recarregue o painel.';
+  }
+  if (/jwt|session|401/i.test(mensagem)) {
+    return 'Sessão expirada. Saia e entre de novo no painel.';
+  }
+  return mensagem;
+}
+
 function payload(entrada: ClienteEntrada) {
   return {
     slug: entrada.slug.trim().toLowerCase(),
@@ -138,13 +152,14 @@ export async function publicar(): Promise<string> {
     const contexto = (error as { context?: Response }).context;
     if (contexto) {
       try {
-        const corpo = (await contexto.clone().json()) as { error?: string };
-        if (corpo?.error) throw new Error(corpo.error);
+        const corpo = (await contexto.clone().json()) as { error?: string; message?: string };
+        const mensagem = corpo?.error ?? corpo?.message;
+        if (mensagem) throw new Error(traduzirPublicacao(mensagem));
       } catch (e) {
         if (e instanceof Error && e.message && e.message !== error.message) throw e;
       }
     }
-    throw new Error(mensagemDeErro(error));
+    throw new Error(traduzirPublicacao(mensagemDeErro(error)));
   }
 
   if (data?.error) throw new Error(String(data.error));

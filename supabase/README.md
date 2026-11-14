@@ -21,13 +21,32 @@ supabase db push
 
 ## Função de publicação
 
+Com a CLI (não precisa de Docker nem de `supabase link`, graças ao
+`config.toml`):
+
 ```bash
-supabase functions deploy publish
-supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/SEU_HOOK
+npx supabase login
+
+# --use-api empacota no servidor da Supabase (sem Docker)
+npx supabase functions deploy publish --use-api --remote=vzjpbadtbjgmwxfphftu
+
+npx supabase secrets set NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/SEU_HOOK \
+  --remote=vzjpbadtbjgmwxfphftu
 ```
 
 A função exige usuário autenticado (JWT do painel) e grava cada tentativa em
-`publish_events`.
+`publish_events`. `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` já são injetadas
+pelo Supabase em toda Edge Function — só o build hook precisa ser configurado.
+
+Teste rápido depois do deploy:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  "https://SEU-PROJETO.supabase.co/functions/v1/publish" \
+  -H "apikey: SUA_PUBLISHABLE_KEY"
+```
+
+`401` é o esperado (sem sessão). Se vier `404`, a função ainda não subiu.
 
 ## Acesso
 
