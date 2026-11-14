@@ -1,0 +1,176 @@
+---
+import type { MenuConfig } from '../../lib/schema';
+import { money, safeJson } from '../../lib/format';
+import { normalizarSimples } from '../../lib/menu';
+
+interface Props {
+  cfg: MenuConfig;
+  slug: string;
+}
+
+const { cfg, slug } = Astro.props;
+const { itens, categorias } = normalizarSimples(cfg);
+const pagamentos = cfg.pagamentos?.length ? cfg.pagamentos : ['Pix'];
+const taxa = cfg.taxa ?? 0;
+---
+
+<header class="topo">
+  <h1>{cfg.nome}</h1>
+  {cfg.slogan && <p>{cfg.slogan}</p>}
+  {
+    cfg.horario && (
+      <span
+        class="status"
+        id="statusLoja"
+        data-abre={cfg.horario.abre}
+        data-fecha={cfg.horario.fecha}
+      />
+    )
+  }
+</header>
+
+<nav class="cats" aria-label="Categorias">
+  {categorias.map((categoria, i) => <a href={`#c${i}`}>{categoria.nome}</a>)}
+</nav>
+
+<main>
+  {
+    categorias.map((categoria, i) => (
+      <section id={`c${i}`}>
+        <h2>{categoria.nome}</h2>
+        {categoria.itens.map((item) => (
+          <div class="item">
+            <div>
+              <h3>{item.nome}</h3>
+              {item.desc && <p>{item.desc}</p>}
+            </div>
+            {item.foto && <img src={item.foto} alt="" loading="lazy" />}
+            <div class="opcoes">
+              {item.ops.map((op) => (
+                <button
+                  class="add"
+                  data-add={op.id}
+                  aria-label={`Adicionar ${item.nome} ${op.nome}`}
+                >
+                  {op.nome ? <span>{op.nome}</span> : <span>+</span>}
+                  <b>{money(op.preco)}</b>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    ))
+  }
+</main>
+
+<div class="barra" id="barra">
+  <button class="btn" id="ver"><span id="qtdTxt"></span><span id="subTxt"></span></button>
+</div>
+
+<dialog id="dlg">
+  <form class="sheet" id="form" method="dialog">
+    <h2>Seu pedido</h2>
+    <div id="lista"></div>
+    <fieldset aria-label="Entrega ou retirada">
+      <label><input type="radio" name="modo" value="Entrega" checked />Entrega</label>
+      <label><input type="radio" name="modo" value="Retirada" />Retirada</label>
+    </fieldset>
+    <label class="campo">Nome<input name="nome" required autocomplete="name" /></label>
+    <label class="campo" id="endBox"
+      >Endereço de entrega<input
+        name="end"
+        autocomplete="street-address"
+        placeholder="Rua, número, bairro"
+      /></label
+    >
+    <label class="campo"
+      >Pagamento<select name="pag">
+        {pagamentos.map((pagamento) => <option>{pagamento}</option>)}
+      </select></label
+    >
+    <label class="campo"
+      >Observações<textarea name="obs" rows="2" placeholder="Ex.: sem cebola"></textarea></label
+    >
+    <div style="margin-top:14px">
+      <div class="tot"><span>Subtotal</span><span id="tSub"></span></div>
+      <div class="tot" id="tEntBox"><span>Entrega</span><span id="tEnt"></span></div>
+      <div class="tot f"><span>Total</span><span id="tTot"></span></div>
+    </div>
+    <button class="btn" type="submit" style="margin-top:14px;justify-content:center"
+      >Enviar pedido no WhatsApp</button
+    >
+    <button class="fechar" type="button" id="voltar">Continuar escolhendo</button>
+  </form>
+</dialog>
+
+<script
+  is:inline
+  type="application/json"
+  id="menu-data"
+  set:html={safeJson({
+    pacote: 'simples',
+    slug,
+    nome: cfg.nome,
+    whatsapp: cfg.whatsapp,
+    taxa,
+    horario: cfg.horario ?? null,
+    pagamentos,
+    itens,
+  })}
+/>
+
+<script>
+  import { iniciarSimples } from '../../scripts/cart-simples';
+  iniciarSimples();
+</script>
+
+<style is:global>
+  :root{--destaque:#111;--textoDestaque:#fff;--fundo:#fff;--texto:#1d1d1b;--superficie:#f4f1ee;--muted:color-mix(in srgb,var(--texto) 62%,var(--fundo));--linha:color-mix(in srgb,var(--texto) 14%,var(--fundo))}
+  *{box-sizing:border-box}
+  html{scroll-padding-top:64px}
+  body{margin:0;background:var(--fundo);color:var(--texto);font:16px/1.45 "Instrument Sans",system-ui,sans-serif;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+  h1,h2,.preco{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif}
+  button{font:inherit;cursor:pointer}
+  :focus-visible{outline:3px solid var(--destaque);outline-offset:2px}
+  .topo{background:var(--destaque);color:var(--textoDestaque);padding:calc(28px + env(safe-area-inset-top)) 20px 26px}
+  .topo h1{margin:0;font-size:clamp(2rem,9vw,3.4rem);line-height:1;font-weight:800;letter-spacing:-.02em;max-width:14ch}
+  .topo p{margin:10px 0 0;opacity:.9;max-width:40ch}
+  .status{display:inline-block;margin-top:16px;padding:5px 12px;border-radius:99px;font-size:.85rem;font-weight:600;background:var(--textoDestaque);color:var(--destaque)}
+  .cats{position:sticky;top:0;z-index:5;display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:var(--fundo);border-bottom:1px solid var(--linha);scrollbar-width:none}
+  .cats a{flex:none;padding:7px 14px;border-radius:99px;background:var(--superficie);color:var(--texto);text-decoration:none;font-weight:500;font-size:.92rem}
+  main{max-width:640px;margin:0 auto;padding:8px 16px}
+  h2{font-size:1.5rem;margin:28px 0 4px;letter-spacing:-.01em}
+  .item{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--linha)}
+  .item:last-child{border-bottom:0}
+  .item h3{margin:0;font-size:1.05rem;font-weight:600}
+  .item p{margin:2px 0 0;color:var(--muted);font-size:.92rem;max-width:44ch}
+  .item img{width:72px;height:72px;border-radius:10px;object-fit:cover;flex:none}
+  .opcoes{display:flex;flex-direction:column;gap:6px;align-items:stretch;flex:none}
+  .add{border:1.5px solid var(--destaque);background:transparent;color:var(--destaque);border-radius:10px;padding:7px 12px;font-weight:600;white-space:nowrap;text-align:left;display:flex;gap:10px;justify-content:space-between}
+  .add:active{background:var(--destaque);color:var(--textoDestaque)}
+  .add b{font-family:"Bricolage Grotesque",sans-serif;font-weight:600}
+  .barra{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--fundo);border-top:1px solid var(--linha);display:none;z-index:6}
+  .barra.on{display:block}
+  .btn{width:100%;border:0;border-radius:12px;padding:15px 18px;background:var(--destaque);color:var(--textoDestaque);font-weight:600;display:flex;justify-content:space-between;align-items:center;max-width:640px;margin:0 auto}
+  dialog{border:0;padding:0;width:min(100%,560px);max-height:92dvh;margin:auto auto 0;border-radius:18px 18px 0 0;background:var(--fundo);color:var(--texto)}
+  dialog::backdrop{background:rgba(0,0,0,.5)}
+  .sheet{padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .sheet h2{margin:0 0 8px}
+  .linha{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)}
+  .qtd{display:flex;align-items:center;gap:10px;flex:none}
+  .qtd button{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--destaque);background:transparent;color:var(--destaque);font-weight:700;line-height:1}
+  .tot{display:flex;justify-content:space-between;padding:4px 0;color:var(--muted)}
+  .tot.f{color:var(--texto);font-weight:700;font-size:1.15rem;padding-top:10px}
+  fieldset{border:0;padding:0;margin:14px 0 0;display:flex;gap:8px}
+  fieldset label{flex:1;text-align:center;padding:10px;border-radius:10px;background:var(--superficie);font-weight:500;cursor:pointer}
+  fieldset input{position:absolute;opacity:0}
+  fieldset label:has(input:checked){background:var(--destaque);color:var(--textoDestaque)}
+  fieldset label:has(input:focus-visible){outline:3px solid var(--destaque);outline-offset:2px}
+  .campo{display:block;margin-top:12px;font-weight:500;font-size:.92rem}
+  .campo input,.campo select,.campo textarea{display:block;width:100%;margin-top:4px;padding:11px 12px;border:1.5px solid var(--linha);border-radius:10px;font:inherit;background:var(--fundo);color:var(--texto)}
+  .fechar{background:none;border:0;color:var(--muted);padding:8px 0;margin-top:6px;width:100%}
+  .aviso{min-height:100dvh;display:grid;place-content:center;text-align:center;padding:24px}
+  .aviso h1{font-size:2rem;margin:0 0 8px}.aviso p{margin:0;color:var(--muted)}
+  @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>

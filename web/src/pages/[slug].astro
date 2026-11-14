@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+import Completo from '../components/menu/Completo.astro';
+import Simples from '../components/menu/Simples.astro';
+import { clientes } from '../lib/clients';
+import { cssVars } from '../lib/theme';
+import type { MenuConfig } from '../lib/schema';
+
+export function getStaticPaths() {
+  return clientes.map(({ slug, cfg }) => ({ params: { slug }, props: { cfg } }));
+}
+
+interface Props {
+  cfg: MenuConfig;
+}
+
+const { cfg } = Astro.props;
+const slug = Astro.params.slug!;
+const ativo = cfg.status === 'ativo';
+const inativo = cfg.status === 'inativo';
+
+const title = `${cfg.nome} · Cardápio`;
+const description =
+  cfg.slogan || `Cardápio digital de ${cfg.nome}. Monte seu pedido e envie pelo WhatsApp.`;
+
+const site = Astro.site ?? new URL('https://flowizehub.com');
+const url = new URL(`/${slug}`, site).href;
+const imagem = new URL(`/og/${slug}.png`, site).href;
+
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Restaurant',
+  name: cfg.nome,
+  description,
+  url,
+  image: imagem,
+  hasMenu: url,
+  ...(cfg.whatsapp ? { telephone: `+${cfg.whatsapp}` } : {}),
+  ...(cfg.endereco
+    ? { address: { '@type': 'PostalAddress', streetAddress: cfg.endereco } }
+    : {}),
+  ...(cfg.horario ? { openingHours: `Mo-Su ${cfg.horario.abre}-${cfg.horario.fecha}` } : {}),
+};
+
+const cores = cssVars(cfg.cores);
+---
+
+<Base
+  title={title}
+  description={description}
+  image={`/og/${slug}.png`}
+  robots={ativo ? 'index,follow' : 'noindex,nofollow'}
+  jsonLd={jsonLd}
+>
+  {
+    cores && (
+      <Fragment slot="head">
+        <style is:inline set:html={`:root{${cores}}`}></style>
+      </Fragment>
+    )
+  }
+
+  {
+    inativo ? (
+      <div class="aviso">
+        <div>
+          <h1>{cfg.nome}</h1>
+          <p>Este cardápio está temporariamente indisponível.</p>
+        </div>
+      </div>
+    ) : cfg.pacote === 'simples' ? (
+      <Simples cfg={cfg} slug={slug} />
+    ) : (
+      <Completo cfg={cfg} slug={slug} />
+    )
+  }
+</Base>
+
+<style is:global>
+  .aviso{min-height:100dvh;display:grid;place-content:center;text-align:center;padding:24px;font:16px/1.5 system-ui,sans-serif;color:#222;background:#fff}
+  .aviso h1{font-size:2rem;margin:0 0 8px}
+  .aviso p{margin:0;color:#666}
+</style>

@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import { clientes } from '../lib/clients';
+
+const demos = clientes;
+---
+
+<Base
+  title="Flowize — cardápios digitais para o seu negócio"
+  description="Cardápios digitais rápidos, com pedido direto no WhatsApp. Sem comissão e sem aplicativo."
+>
+  <style is:global>
+    :root{--tinta:#1c1210;--papel:#fbf8f4;--acento:#d62828;--suave:#efe8df;--mudo:#6d625c}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.5 "Instrument Sans",system-ui,sans-serif}
+    .home{max-width:880px;margin:0 auto;padding:56px 24px 80px}
+    .marca{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.02em}
+    .marca i{width:40px;height:40px;border-radius:12px;background:var(--acento);color:#fff;display:grid;place-items:center;font:700 1.2rem "Bricolage Grotesque",sans-serif;font-style:normal}
+    .hero{margin:64px 0 48px;max-width:620px}
+    .hero h1{margin:0;font:800 clamp(2.2rem,6vw,3.6rem)/1.02 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em}
+    .hero p{margin:18px 0 0;color:var(--mudo);font-size:1.1rem;max-width:46ch}
+    .selo{display:inline-block;margin-bottom:18px;padding:5px 12px;border-radius:99px;background:var(--suave);color:var(--mudo);font-size:.82rem;font-weight:600}
+    .exemplos h2{font:700 1.4rem "Bricolage Grotesque",sans-serif;margin:0 0 16px;letter-spacing:-.02em}
+    .lista{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));list-style:none;padding:0;margin:0}
+    .lista a{display:flex;flex-direction:column;gap:4px;padding:20px;border:1px solid #e4d9cc;border-radius:16px;background:#fff;color:inherit;text-decoration:none;transition:transform .15s ease, box-shadow .15s ease}
+    .lista a:hover{transform:translateY(-2px);box-shadow:0 12px 30px #1c121014}
+    .lista b{font-weight:600}
+    .lista small{color:var(--mudo)}
+    .rodape{margin-top:56px;padding-top:20px;border-top:1px solid #e4d9cc;color:var(--mudo);font-size:.9rem}
+  </style>
+
+  <main class="home">
+    <div class="marca"><i>F</i>Flowize</div>
+
+    <section class="hero">
+      <span class="selo">Em construção</span>
+      <h1>Cardápios digitais que vendem pelo WhatsApp.</h1>
+      <p>
+        Página rápida, bonita e com pedido direto no WhatsApp. Sem comissão, sem aplicativo e com
+        o seu link próprio.
+      </p>
+    </section>
+
+    <section class="exemplos">
+      <h2>Veja um exemplo</h2>
+      <ul class="lista">
+        {
+          demos.map(({ slug, cfg }) => (
+            <li>
+              <a href={`/${slug}`}>
+                <b>{cfg.nome}</b>
+                <small>{cfg.pacote === 'completo' ? 'Pacote completo' : 'Pacote simples'} · {cfg.slogan || 'Cardápio digital'}</small>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <footer class="rodape">flowizehub.com</footer>
+  </main>
+</Base>

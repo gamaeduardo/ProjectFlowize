@@ -1,0 +1,63 @@
+{
+  "pacote": "simples",
+  "status": "teste",
+  "nome": "Lanchonete da Ana",
+  "slogan": "Lanches artesanais",
+  "whatsapp": "5511999999999",
+  "taxa": 5,
+  "horario": {
+    "abre": "17:00",
+    "fecha": "23:00"
+  },
+  "pagamentos": [
+    "Pix",
+    "Cartão na entrega",
+    "Dinheiro"
+  ],
+  "cores": {
+    "destaque": "#1f7a4d",
+    "textoDestaque": "#ffffff",
+    "fundo": "#ffffff",
+    "texto": "#1d1d1b",
+    "superficie": "#eef4f0"
+  },
+  "categorias": [
+    {
+      "nome": "Lanches",
+      "itens": [
+        {
+          "nome": "X-Burguer",
+          "desc": "Pão, hambúrguer, queijo e salada",
+          "preco": 18
+        },
+        {
+          "nome": "X-Bacon",
+          "desc": "Pão, hambúrguer, queijo e bacon",
+          "preco": 22
+        }
+      ]
+    },
+    {
+      "nome": "Bebidas",
+      "itens": [
+        {
+          "nome": "Refrigerante lata",
+          "preco": 6
+        },
+        {
+          "nome": "Suco natural",
+          "opcoes": [
+            [
+              "300ml",
+              7
+            ],
+            [
+              "500ml",
+              10
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

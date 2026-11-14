@@ -1,0 +1,75 @@
+---
+import { safeJson } from '../lib/format';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  robots?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description = '',
+  image,
+  robots = 'index,follow',
+  jsonLd,
+} = Astro.props;
+
+const site = Astro.site ?? new URL('https://flowizehub.com');
+const pathname = Astro.url.pathname.replace(/\.html$/, '');
+const canonical = new URL(pathname, site).href;
+const ogImage = new URL(image ?? '/og-default.png', site).href;
+const umamiId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={robots} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Flowize" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    {jsonLd && <script type="application/ld+json" set:html={safeJson(jsonLd)} />}
+
+    <slot name="head" />
+
+    {
+      umamiId && (
+        <script
+          is:inline
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={umamiId}
+          data-domains="flowizehub.com"
+        />
+      )
+    }
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

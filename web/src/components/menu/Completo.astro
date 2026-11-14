@@ -1,0 +1,285 @@
+---
+import type { MenuConfig } from '../../lib/schema';
+import { artSvg } from '../../lib/art';
+import { money, safeJson } from '../../lib/format';
+import { normalizarCompleto } from '../../lib/menu';
+
+interface Props {
+  cfg: MenuConfig;
+  slug: string;
+}
+
+const { cfg, slug } = Astro.props;
+const { itens, todos, categorias } = normalizarCompleto(cfg);
+const destaques = todos.filter((item) => item.destaque);
+const pagamentos = cfg.pagamentos?.length ? cfg.pagamentos : ['Pix'];
+const taxa = cfg.taxa ?? 0;
+const nomeCurto = cfg.nome.split(/\s+/).filter((palavra) => palavra.length > 2);
+const logo = (
+  (nomeCurto[0]?.[0] ?? cfg.nome[0] ?? '') +
+  (nomeCurto[nomeCurto.length - 1]?.[0] ?? '')
+).toUpperCase();
+const menorPreco = (ops: { preco: number }[]) => Math.min(...ops.map((op) => op.preco));
+---
+
+<header class="capa">
+  <div class="t">
+    {cfg.slogan && <h2>{cfg.slogan}</h2>}
+    <p>Peça pelo celular, sem comissão.</p>
+  </div>
+  <div
+    class="arte-hero"
+    id="hero"
+    set:html={artSvg({
+      tipo: 'pizza',
+      cores: ['#b5342b', '#e9e3d0', '#7fa23c'],
+      fundo: 'none',
+    })}
+  >
+  </div>
+</header>
+
+<section class="info">
+  <div class="logo">{logo}</div>
+  <h1>{cfg.nome}</h1>
+  {cfg.endereco && <p class="end">{cfg.endereco}</p>}
+  <div class="meta">
+    {
+      cfg.horario && (
+        <span
+          id="statusLoja"
+          class="on"
+          data-abre={cfg.horario.abre}
+          data-fecha={cfg.horario.fecha}
+        />
+      )
+    }
+    {cfg.tempo && <span>{cfg.tempo}</span>}
+    {taxa > 0 && <span>Entrega {money(taxa)}</span>}
+  </div>
+</section>
+
+<nav class="cats" aria-label="Categorias">
+  {destaques.length > 0 && <a href="#maisp">Mais pedidos</a>}
+  {categorias.map((categoria, i) => <a href={`#c${i}`}>{categoria.nome}</a>)}
+</nav>
+
+<main>
+  {
+    destaques.length > 0 && (
+      <section id="maisp">
+        <h2 class="s">Mais pedidos</h2>
+        <div class="car">
+          {destaques.map((item) => (
+            <button class="card" data-i={item.i}>
+              <span class="tag">Mais pedido</span>
+              <span class="a" style="display:block;height:112px">
+                {item.foto ? (
+                  <img
+                    src={item.foto}
+                    alt=""
+                    loading="lazy"
+                    style="width:100%;height:100%;object-fit:cover"
+                  />
+                ) : (
+                  <Fragment set:html={artSvg(item.arte)} />
+                )}
+              </span>
+              <span class="c">
+                <b>{item.nome}</b>
+                <small>
+                  {item.ops.length > 1 ? 'a partir de ' : ''}
+                  {money(menorPreco(item.ops))}
+                </small>
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    categorias.map((categoria, i) => (
+      <section id={`c${i}`}>
+        <h2 class="s">{categoria.nome}</h2>
+        {categoria.itens.map((item) => (
+          <button class="row" data-i={item.i}>
+            <span class="x">
+              <b>{item.nome}</b>
+              <span class="d">{item.desc}</span>
+              <span class="p">
+                {item.ops.length > 1 ? 'a partir de ' : ''}
+                {money(menorPreco(item.ops))}
+              </span>
+            </span>
+            <span class="a">
+              {item.foto ? (
+                <img
+                  src={item.foto}
+                  alt=""
+                  loading="lazy"
+                  style="width:100%;height:100%;object-fit:cover"
+                />
+              ) : (
+                <Fragment set:html={artSvg(item.arte)} />
+              )}
+            </span>
+          </button>
+        ))}
+      </section>
+    ))
+  }
+</main>
+
+<div class="barra" id="barra">
+  <button class="btn" id="ver"><span id="qtdTxt"></span><span id="subTxt"></span></button>
+</div>
+
+<dialog id="dI">
+  <div class="big">
+    <button class="fx" id="fI" aria-label="Fechar">×</button>
+    <div class="a" id="iArt"></div>
+  </div>
+  <div class="sh">
+    <h2 id="iNome"></h2>
+    <p class="d" id="iDesc"></p>
+    <div id="iOps"></div>
+    <label class="campo">Observação<textarea id="iObs" rows="2" placeholder="Ex.: sem cebola"></textarea></label>
+    <div class="go">
+      <div class="q">
+        <button id="m" aria-label="Diminuir">−</button>
+        <b id="qn">1</b>
+        <button id="M" aria-label="Aumentar">+</button>
+      </div>
+      <button class="btn" id="add"><span>Adicionar</span><span id="aP"></span></button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dC">
+  <form class="sh" id="form" method="dialog">
+    <h2>Seu pedido</h2>
+    <div id="lista"></div>
+    <fieldset aria-label="Entrega ou retirada">
+      <label><input type="radio" name="modo" value="Entrega" checked />Entrega</label>
+      <label><input type="radio" name="modo" value="Retirada" />Retirada</label>
+    </fieldset>
+    <label class="campo">Nome<input name="nome" required autocomplete="name" /></label>
+    <label class="campo" id="endBox"
+      >Endereço de entrega<input
+        name="end"
+        autocomplete="street-address"
+        placeholder="Rua, número, bairro"
+      /></label
+    >
+    <label class="campo"
+      >Pagamento<select name="pag" id="pag">
+        {pagamentos.map((pagamento) => <option>{pagamento}</option>)}
+      </select></label
+    >
+    <div style="margin-top:14px">
+      <div class="tot"><span>Subtotal</span><span id="tS"></span></div>
+      <div class="tot" id="tEB"><span>Entrega</span><span id="tE"></span></div>
+      <div class="tot f"><span>Total</span><span id="tT"></span></div>
+    </div>
+    <button class="btn" type="submit" style="margin-top:14px;width:100%;justify-content:center"
+      >Enviar pedido no WhatsApp</button
+    >
+    <button class="voltar" type="button" id="vC">Continuar escolhendo</button>
+  </form>
+</dialog>
+
+<script
+  is:inline
+  type="application/json"
+  id="menu-data"
+  set:html={safeJson({
+    pacote: 'completo',
+    slug,
+    nome: cfg.nome,
+    whatsapp: cfg.whatsapp,
+    taxa,
+    horario: cfg.horario ?? null,
+    pagamentos,
+    itens,
+    todos,
+  })}
+/>
+
+<script>
+  import { iniciarCompleto } from '../../scripts/cart-completo';
+  iniciarCompleto();
+</script>
+
+<style is:global>
+  :root{--destaque:#d62828;--tdest:#fff;--fundo:#fff;--texto:#1f1a18;--sup:#f3efec;--hero:#1c1210;
+  --muted:color-mix(in srgb,var(--texto) 60%,var(--fundo));--linha:color-mix(in srgb,var(--texto) 13%,var(--fundo));
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fundo:#161110;--texto:#f4ede9;--sup:#241c1a}}
+  :root[data-theme="dark"]{--fundo:#161110;--texto:#f4ede9;--sup:#241c1a}
+  html{background:var(--hero);scroll-padding-top:env(safe-area-inset-top,0px)}
+  @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fundo);color:var(--texto);font:16px/1.45 "Instrument Sans",system-ui,sans-serif;padding-bottom:110px}
+  h1,h2,h3,b,.f{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0;text-align:left}
+  :focus-visible{outline:3px solid var(--destaque);outline-offset:2px}
+  .capa{position:relative;height:250px;overflow:hidden;background:radial-gradient(circle at 78% 55%,#6b1a14 0,var(--hero) 62%);color:#fff}
+  .capa .t{position:relative;z-index:1;padding:34px 22px;max-width:62%}
+  .capa h2{margin:0;font-size:clamp(1.8rem,8vw,2.6rem);line-height:1.02;font-weight:800;letter-spacing:-.02em}
+  .capa p{margin:10px 0 0;opacity:.8;font-size:.95rem}
+  .arte-hero{position:absolute;right:-90px;top:20px;width:320px;height:320px;will-change:transform}
+  .arte-hero svg{width:100%;height:100%;filter:drop-shadow(0 18px 24px #0008)}
+  .info{position:relative;margin-top:-28px;background:var(--fundo);border-radius:28px 28px 0 0;padding:46px 20px 10px;max-width:640px;margin-inline:auto}
+  .logo{position:absolute;top:-36px;left:20px;width:72px;height:72px;border-radius:50%;background:var(--destaque);color:var(--tdest);border:4px solid var(--fundo);display:grid;place-items:center;font:800 1.5rem "Bricolage Grotesque",sans-serif}
+  .info h1{margin:0;font-size:1.7rem;letter-spacing:-.02em;line-height:1.1}
+  .end{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;color:var(--muted);font-size:.92rem}
+  .on{color:#1a8a4a;font-weight:600}.off{color:var(--destaque);font-weight:600}
+  .cats{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:8px;overflow-x:auto;padding:10px 20px;background:var(--fundo);border-bottom:1px solid var(--linha);scrollbar-width:none}
+  .cats a{flex:none;padding:8px 16px;border-radius:99px;background:var(--sup);color:var(--texto);text-decoration:none;font-weight:500;font-size:.92rem}
+  .cats a:first-child{background:var(--destaque);color:var(--tdest)}
+  main{max-width:640px;margin:0 auto}
+  h2.s{font-size:1.35rem;margin:26px 20px 12px;letter-spacing:-.01em}
+  .car{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 20px 6px;scrollbar-width:none}
+  .card{flex:0 0 156px;scroll-snap-align:start;background:var(--sup);border-radius:18px;overflow:hidden}
+  .card .a{height:112px}.card .c{padding:10px 12px 12px;display:block}
+  .card b{display:block;font-weight:600;line-height:1.2}.card small{color:var(--muted)}
+  .tag{position:absolute;margin:8px;background:var(--destaque);color:var(--tdest);font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:99px;z-index:1}
+  .a svg{width:100%;height:100%;display:block}
+  .row{display:flex;gap:14px;justify-content:space-between;width:calc(100% - 40px);margin:0 20px;padding:16px 0;border-bottom:1px solid var(--linha)}
+  .row .x{flex:1;min-width:0}.row b{display:block;font-weight:600;font-size:1.02rem}
+  .row .d{display:block;color:var(--muted);font-size:.9rem;margin:2px 0 6px}
+  .row .p{font-weight:600;font-family:"Bricolage Grotesque",sans-serif}
+  .row .a{flex:none;width:92px;height:92px;border-radius:16px;overflow:hidden}
+  dialog{border:0;padding:0;width:min(100%,560px);max-height:94dvh;margin:auto auto 0;border-radius:24px 24px 0 0;background:var(--fundo);color:var(--texto);overflow:auto}
+  dialog[open]{animation:sobe .28s ease-out}
+  @keyframes sobe{from{transform:translateY(40px);opacity:0}}
+  dialog::backdrop{background:rgba(0,0,0,.55)}
+  @media (prefers-reduced-motion:reduce){dialog[open]{animation:none}}
+  .fx{position:absolute;top:12px;left:12px;z-index:2;width:38px;height:38px;border-radius:50%;background:var(--fundo);display:grid;place-items:center;font-size:1.2rem;text-align:center}
+  .big{height:230px;position:relative}.big .a{height:100%}
+  .sh{padding:18px 20px calc(20px + env(safe-area-inset-bottom,0px))}
+  .sh h2{margin:0;font-size:1.6rem;letter-spacing:-.01em}.sh .d{color:var(--muted);margin:6px 0 0}
+  .op{display:flex;align-items:center;gap:12px;padding:13px 14px;margin-top:8px;border-radius:14px;background:var(--sup);cursor:pointer}
+  .op span{flex:1}.op input{accent-color:var(--destaque);width:20px;height:20px}
+  .op:has(input:checked){outline:2px solid var(--destaque)}
+  .go{display:flex;gap:10px;margin-top:18px}
+  .q{display:flex;align-items:center;gap:14px;background:var(--sup);border-radius:14px;padding:0 6px}
+  .q button{width:36px;height:46px;font-size:1.3rem;text-align:center;color:var(--destaque);font-weight:700}
+  .btn{flex:1;border-radius:14px;background:var(--destaque);color:var(--tdest);padding:14px 18px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .linha{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)}
+  .qtd{display:flex;align-items:center;gap:10px}.qtd button{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--destaque);color:var(--destaque);font-weight:700;text-align:center}
+  fieldset{border:0;padding:0;margin:14px 0 0;display:flex;gap:8px}
+  fieldset label{flex:1;text-align:center;padding:10px;border-radius:12px;background:var(--sup);font-weight:500;cursor:pointer}
+  fieldset input{position:absolute;opacity:0}
+  fieldset label:has(input:checked){background:var(--destaque);color:var(--tdest)}
+  fieldset label:has(input:focus-visible){outline:3px solid var(--destaque);outline-offset:2px}
+  .campo{display:block;margin-top:12px;font-weight:500;font-size:.92rem}
+  .campo input,.campo select,.campo textarea{display:block;width:100%;margin-top:4px;padding:11px 12px;border:1.5px solid var(--linha);border-radius:12px;font:inherit;background:var(--fundo);color:var(--texto)}
+  .tot{display:flex;justify-content:space-between;padding:3px 0;color:var(--muted)}.tot.f{color:var(--texto);font-weight:700;font-size:1.15rem;padding-top:10px}
+  .voltar{width:100%;text-align:center;color:var(--muted);padding:12px 0 0}
+  .barra{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));max-width:608px;margin:0 auto;z-index:6;display:none;box-shadow:0 10px 30px #0004;border-radius:16px}
+  .barra.on{display:block}.barra .btn{width:100%;padding:16px 18px}
+</style>
