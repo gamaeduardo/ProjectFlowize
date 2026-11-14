@@ -4,6 +4,7 @@ import Completo from '../components/menu/Completo.astro';
 import Simples from '../components/menu/Simples.astro';
 import { getClientes } from '../lib/clients';
 import { cssVars } from '../lib/theme';
+import { BOT_UA } from '../lib/analytics';
 import type { MenuConfig } from '../lib/schema';
 
 export async function getStaticPaths() {
@@ -92,11 +93,12 @@ if (!inativo && !contarVisitas) {
 
   {
     contarVisitas && (
-      <script is:inline define:vars={{ slug, supabaseUrl, supabaseKey }}>
+      <script is:inline define:vars={{ slug, supabaseUrl, supabaseKey, BOT_UA }}>
         (() => {
           if (!supabaseUrl || !supabaseKey) return;
           if (navigator.webdriver) return;
           if (navigator.doNotTrack === '1') return;
+          if (new RegExp(BOT_UA, 'i').test(navigator.userAgent)) return;
           if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
 
           const chave = 'flowize:visita:' + slug;

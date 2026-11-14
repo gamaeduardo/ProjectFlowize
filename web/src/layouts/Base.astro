@@ -1,5 +1,6 @@
 ---
 import { safeJson } from '../lib/format';
+import { BOT_UA } from '../lib/analytics';
 
 interface Props {
   title: string;
@@ -66,13 +67,22 @@ const umamiDomains =
 
     {
       umamiId && (
-        <script
-          is:inline
-          defer
-          src="https://cloud.umami.is/script.js"
-          data-website-id={umamiId}
-          data-domains={umamiDomains}
-        />
+        <script is:inline define:vars={{ umamiId, umamiDomains, BOT_UA }}>
+          // Carrega o Umami só em navegador de gente. Robô que executa JS
+          // (crawler, scanner, headless) não infla as visitas.
+          (() => {
+            if (navigator.webdriver) return;
+            if (navigator.doNotTrack === '1') return;
+            if (new RegExp(BOT_UA, 'i').test(navigator.userAgent)) return;
+
+            const s = document.createElement('script');
+            s.defer = true;
+            s.src = 'https://cloud.umami.is/script.js';
+            s.dataset.websiteId = umamiId;
+            if (umamiDomains) s.dataset.domains = umamiDomains;
+            document.head.appendChild(s);
+          })();
+        </script>
       )
     }
   </head>

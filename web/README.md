@@ -75,6 +75,17 @@ subdomínios de hospedagem:
 PUBLIC_UMAMI_DOMAINS=flowizehub.com,www.flowizehub.com,flowizehub.pages.dev
 ```
 
+### Filtro de robôs
+
+O Umami e o contador próprio só carregam em navegador de gente: `navigator.webdriver`,
+`Do Not Track` e uma lista de user-agents de crawler/scanner são ignorados
+(`src/lib/analytics.ts`). Sem isso, robô que executa JavaScript aparece como
+"usuário" em países de datacenter. O filtro não é infalível — robô com UA de
+navegador comum ainda passa.
+
+Quando o domínio estiver no ar, tire `flowizehub.pages.dev` da lista: boa parte
+do ruído vem de crawler batendo no endereço de teste.
+
 ## Variáveis de ambiente
 
 Copie `.env.example` para `.env`:
