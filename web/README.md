@@ -5,9 +5,15 @@ Site da marca (`/`) e cardápios dos clientes (`/<slug>`), em Astro.
 ## Desenvolvimento
 
 ```bash
-npm install
+npm ci --force
 npm run dev
 ```
+
+O `--force` é necessário porque o compilador do Astro é instalado também na
+versão WASM (`@astrojs/compiler-binding-wasm32-wasi`), declarada para
+`cpu: wasm32`. Os scripts `npm run dev` e `npm run build` já carregam o loader
+que troca o binding nativo pelo WASM — necessário em CPUs x64 sem AVX2, onde o
+binding nativo morre com `SIGILL`.
 
 Abra `http://localhost:4321/pizzaria-do-joao` ou `http://localhost:4321/lanchonete-da-ana`.
 
@@ -58,4 +64,5 @@ PUBLIC_UMAMI_WEBSITE_ID=
 
 ## Deploy
 
-Netlify com `base = web`, `publish = dist` (ver `netlify.toml` na raiz).
+Netlify com `base = web`, `publish = dist` e `npm ci --force && npm run build`
+(ver `netlify.toml` na raiz).

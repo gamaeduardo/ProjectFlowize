@@ -7,3 +7,6 @@ dist/
 !.env.example
 .DS_Store
 *.log
+
+# Molde original do cardápio, mantido apenas como referência local.
+cardapio-final/

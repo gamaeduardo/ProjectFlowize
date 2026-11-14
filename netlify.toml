@@ -1,6 +1,8 @@
 [build]
   base = "web"
-  command = "npm run build"
+  # --force é necessário para instalar o binding WASM do compilador do Astro
+  # (declarado para cpu wasm32) em máquinas x64.
+  command = "npm ci --force && npm run build"
   publish = "dist"
 
 [build.environment]
