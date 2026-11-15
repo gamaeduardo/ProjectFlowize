@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import Marca from './Marca';
 import { supabase } from '../lib/supabase';
 
 interface Props {
@@ -23,12 +24,8 @@ export default function Layout({ email, modoDemo, children }: Props) {
     <>
       <header className="topbar">
         <div className="topbar-interno">
-          <Link className="marca" to="/clientes" aria-label="Flowize — clientes">
-            <span className="marca-simbolo" aria-hidden="true">
-              F
-            </span>
-            Flowize
-            <span className="marca-tag">painel</span>
+          <Link className="marca-link" to="/clientes" aria-label="Flowize — clientes">
+            <Marca tag="painel" />
           </Link>
 
           <nav className="nav" aria-label="Seções do painel">
@@ -42,7 +39,7 @@ export default function Layout({ email, modoDemo, children }: Props) {
             <a className="btn btn-fantasma btn-pequeno" href="https://flowizehub.com" target="_blank" rel="noopener">
               Ver site ↗
             </a>
-            <span>{email}</span>
+            <span className="topbar-email">{email}</span>
             <button className="btn btn-contorno btn-pequeno" type="button" onClick={sair}>
               Sair
             </button>

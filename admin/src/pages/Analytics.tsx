@@ -187,7 +187,7 @@ export default function Analytics() {
         <div className="cartao-topo">
           <div>
             <h2>Últimos {DIAS_GRAFICO} dias</h2>
-            <p>Soma de todos os cardápios. A barra escura é hoje.</p>
+            <p>Soma de todos os cardápios. A barra rosa é hoje.</p>
           </div>
         </div>
 

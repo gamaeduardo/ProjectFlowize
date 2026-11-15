@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import Marca from '../components/Marca';
 import { supabase } from '../lib/supabase';
 
 function traduzir(mensagem: string): string {
@@ -32,12 +33,8 @@ export default function Login() {
   return (
     <div className="login">
       <form className="login-cartao" onSubmit={entrar}>
-        <span className="marca">
-          <span className="marca-simbolo" aria-hidden="true">
-            F
-          </span>
-          Flowize
-          <span className="marca-tag">painel</span>
+        <span className="login-marca">
+          <Marca tag="painel" />
         </span>
 
         <h1>Entrar no painel</h1>
