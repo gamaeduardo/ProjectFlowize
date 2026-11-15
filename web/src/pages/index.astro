@@ -52,7 +52,7 @@ const faq = [
   {
     pergunta: 'Como funciona o pagamento?',
     resposta:
-      'É mensal e combinado direto no WhatsApp. Sem comissão por pedido e sem taxa escondida.',
+      'A instalação custa R$ 147 no pacote Simples ou R$ 198 no Completo, e a mensalidade é R$ 59. Sem comissão por pedido e sem taxa escondida. Você pode cancelar quando quiser.',
   },
 ];
 
@@ -91,6 +91,22 @@ const jsonLd = {
       areaServed: { '@type': 'Country', name: 'Brasil' },
       description:
         'Página leve com link próprio e QR code, carrinho e envio do pedido direto no WhatsApp, sem comissão por venda.',
+      offers: [
+        {
+          '@type': 'Offer',
+          name: 'Pacote Simples',
+          price: 147,
+          priceCurrency: 'BRL',
+          description: 'Instalação de R$ 147 e mensalidade de R$ 59. Sem comissão por pedido.',
+        },
+        {
+          '@type': 'Offer',
+          name: 'Pacote Completo',
+          price: 198,
+          priceCurrency: 'BRL',
+          description: 'Instalação de R$ 198 e mensalidade de R$ 59. Sem comissão por pedido.',
+        },
+      ],
     },
     {
       '@type': 'FAQPage',
@@ -104,7 +120,7 @@ const jsonLd = {
 };
 
 const ctaPrincipal = waLink('Olá! Quero um cardápio digital para o meu negócio.');
-const ctaOrcamento = waLink('Olá! Quero um orçamento de cardápio digital.');
+const ctaSimples = waLink('Olá! Quero o pacote Simples de cardápio digital.');
 const ctaCompleto = waLink('Olá! Quero o pacote completo de cardápio digital.');
 const ano = new Date().getFullYear();
 ---
@@ -391,10 +407,10 @@ const ano = new Date().getFullYear();
               <li>Ajustes pelo WhatsApp</li>
             </ul>
             <div class="preco">
-              <b>Sob consulta</b>
-              <small>Orçamento sem compromisso no WhatsApp.</small>
-              <a class="btn btn-contorno" href={ctaOrcamento} data-wa target="_blank" rel="noopener">
-                Pedir orçamento
+              <div class="preco-valor"><b>R$ 59</b><span>/mês</span></div>
+              <small>+ R$ 147 de instalação única</small>
+              <a class="btn btn-contorno" href={ctaSimples} data-wa target="_blank" rel="noopener">
+                Quero o Simples
               </a>
             </div>
           </article>
@@ -412,8 +428,8 @@ const ano = new Date().getFullYear();
               <li>Observações por item</li>
             </ul>
             <div class="preco">
-              <b>Sob consulta</b>
-              <small>Mensalidade sem comissão por pedido.</small>
+              <div class="preco-valor"><b>R$ 59</b><span>/mês</span></div>
+              <small>+ R$ 198 de instalação única</small>
               <a class="btn btn-primario" href={ctaCompleto} data-wa target="_blank" rel="noopener">
                 Quero o completo
               </a>
@@ -1518,6 +1534,28 @@ const ano = new Date().getFullYear();
   .pacote .preco b {
     font: 700 1.4rem 'Bricolage Grotesque', sans-serif;
     letter-spacing: -0.02em;
+  }
+
+  .pacote .preco-valor {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .pacote .preco-valor b {
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+
+  .pacote .preco-valor span {
+    color: var(--mudo);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .pacote.destaque .preco-valor span {
+    color: #9a9aa6;
   }
 
   .pacote .preco small {
