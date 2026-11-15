@@ -1,0 +1,1472 @@
+---
+import { artSvg } from '../../lib/art';
+import { money } from '../../lib/format';
+import { site } from '../../lib/site';
+
+const entrega = 6;
+
+const itens = [
+  {
+    nome: 'Marguerita',
+    desc: 'Muçarela e manjericão',
+    preco: 42,
+    arte: { tipo: 'pizza', cores: ['#b5342b', '#e9e3d0', '#7fa23c'], fundo: 'none' },
+  },
+  {
+    nome: 'Calabresa',
+    desc: 'Calabresa e cebola',
+    preco: 46,
+    arte: { tipo: 'pizza', cores: ['#a3241c', '#d9b48a', '#7a2e1a'], fundo: 'none' },
+  },
+  {
+    nome: 'Guaraná',
+    desc: 'Lata 350 ml',
+    preco: 6,
+    arte: { tipo: 'lata', cores: ['#b5342b', '#e9e3d0'], fundo: 'none' },
+  },
+];
+---
+
+<section
+  class="demo"
+  id="experimente"
+  aria-labelledby="demo-titulo"
+  data-demo
+  data-whatsapp={site.whatsapp}
+  data-entrega={entrega}
+>
+  <div class="demo-luz" aria-hidden="true"></div>
+
+  <div class="container demo-grade">
+    <div class="demo-intro" data-revelar>
+      <span class="rotulo demo-rotulo"><i></i> Experimente</span>
+      <h2 id="demo-titulo">Faça um pedido<br />de teste.</h2>
+      <p>
+        É o mesmo caminho que o seu cliente faz: escolhe, monta o carrinho e envia. Nada é cobrado
+        e nada sai sem você confirmar.
+      </p>
+
+      <ol class="demo-passos">
+        <li><b>01</b> Toque em um item para adicionar.</li>
+        <li><b>02</b> Veja o carrinho se montar no celular.</li>
+        <li><b>03</b> Envie e leia a mensagem pronta no WhatsApp.</li>
+      </ol>
+
+      <p class="demo-nota">
+        Demonstração com a Pizzaria do João. Ao enviar, o WhatsApp da Flowize abre com o pedido de
+        teste já escrito — do jeito que o seu chegaria.
+      </p>
+    </div>
+
+    <div class="demo-palco">
+      <div class="demo-interativo">
+        <div class="demo-cardapio" role="group" aria-label="Cardápio de teste">
+          <div class="demo-cardapio-topo">
+            <span class="demo-mini">Pizzaria do João</span>
+            <span class="demo-mini-selo">Aberto</span>
+          </div>
+
+          {
+            itens.map((item, indice) => (
+              <button
+                type="button"
+                class="demo-item"
+                data-add={indice}
+                data-nome={item.nome}
+                data-preco={item.preco}
+                aria-label={`Adicionar ${item.nome} por ${money(item.preco)} ao pedido`}
+              >
+                <span class="demo-arte" set:html={artSvg(item.arte)} />
+                <span class="demo-item-info">
+                  <b>{item.nome}</b>
+                  <small>{item.desc}</small>
+                  <strong>{money(item.preco)}</strong>
+                </span>
+                <span class="demo-mais" aria-hidden="true">+</span>
+              </button>
+            ))
+          }
+
+          <button type="button" class="demo-resumo" id="demoResumo" hidden>
+            <span><b id="demoResumoQtd">0 itens</b> · <b id="demoResumoTotal">R$ 0,00</b></span>
+            <span>Ver pedido <i aria-hidden="true">→</i></span>
+          </button>
+
+          <p class="demo-dica" id="demoDica">Toque em um item para adicionar</p>
+        </div>
+
+        <div class="demo-telefone">
+          <div class="demo-tela">
+            <div class="demo-topo">
+              <span class="demo-volta" aria-hidden="true">‹</span>
+              <span class="demo-avatar" aria-hidden="true">PJ</span>
+              <span class="demo-contato">
+                <b>Pizzaria do João</b>
+                <small><i aria-hidden="true"></i> online</small>
+              </span>
+            </div>
+
+            <div class="demo-corpo">
+              <div class="demo-vazio" id="demoVazio">
+                <div class="demo-vazio-chat">
+                  <div class="demo-balao demo-recebido">Oi! Tudo bem? 👋</div>
+                  <div class="demo-balao demo-recebido">
+                    Escolha os itens no cardápio ao lado. O pedido chega aqui prontinho.
+                  </div>
+                </div>
+                <div class="demo-vazio-carrinho">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z" />
+                    <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+                  </svg>
+                  <b>Seu pedido</b>
+                  <small>Toque no + para começar.</small>
+                </div>
+              </div>
+
+              <div class="demo-carrinho" id="demoCarrinho" hidden>
+                <div class="demo-carrinho-topo">
+                  <b>Seu pedido</b>
+                  <span id="demoQtdTopo">0 itens</span>
+                </div>
+
+                <ul class="demo-linhas" id="demoLinhas"></ul>
+
+                <div class="demo-totais">
+                  <span>Subtotal <b id="demoSub">{money(0)}</b></span>
+                  <span>Entrega <b>{money(entrega)}</b></span>
+                  <span class="demo-total">Total <b id="demoTotal">{money(0)}</b></span>
+                </div>
+
+                <button type="button" class="demo-enviar" id="demoEnviar">
+                  Enviar pedido no WhatsApp
+                </button>
+              </div>
+
+              <div class="demo-chat" id="demoChat" tabindex="-1" hidden>
+                <div class="demo-balao demo-recebido">
+                  Recebemos seu pedido de teste! É assim que ele chega no WhatsApp da loja. 👋
+                </div>
+                <div class="demo-balao demo-enviado" id="demoBalao"></div>
+                <div class="demo-digitando" id="demoDigitando" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                </div>
+                <div class="demo-chat-acoes" id="demoChatAcoes" hidden>
+                  <a
+                    class="demo-wa"
+                    id="demoWa"
+                    href="#"
+                    data-wa
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Abrir no WhatsApp <span aria-hidden="true">↗</span>
+                  </a>
+                  <button type="button" class="demo-refazer" id="demoRefazer">
+                    Fazer outro pedido
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-barra" id="demoBarra">
+              <span id="demoBarraTxt">0 itens</span>
+              <b id="demoBarraTotal">{money(0)}</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-sem-js">
+        <b>Seu navegador está sem JavaScript.</b>
+        <p>
+          O experimento interativo não roda aqui, mas você pode ver o cardápio de exemplo
+          funcionando de verdade:
+        </p>
+        <a class="btn btn-primario" href="/pizzaria-do-joao">Abrir cardápio de exemplo</a>
+      </div>
+
+      <p class="demo-sr" id="demoAviso" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { esc, money } from '../../lib/format';
+  import { track } from '../../lib/track';
+
+  const raiz = document.querySelector<HTMLElement>('[data-demo]');
+
+  if (raiz) {
+    const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const whatsapp = raiz.dataset.whatsapp || '';
+    const entrega = Number(raiz.dataset.entrega || 0);
+
+    const botoes = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-add]'));
+    const itens = botoes.map((botao) => ({
+      nome: botao.dataset.nome || 'Item',
+      preco: Number(botao.dataset.preco || 0),
+    }));
+
+    const vazio = raiz.querySelector<HTMLElement>('#demoVazio');
+    const carrinhoEl = raiz.querySelector<HTMLElement>('#demoCarrinho');
+    const linhasEl = raiz.querySelector<HTMLElement>('#demoLinhas');
+    const qtdTopoEl = raiz.querySelector<HTMLElement>('#demoQtdTopo');
+    const subEl = raiz.querySelector<HTMLElement>('#demoSub');
+    const totalEl = raiz.querySelector<HTMLElement>('#demoTotal');
+    const enviarEl = raiz.querySelector<HTMLButtonElement>('#demoEnviar');
+    const barra = raiz.querySelector<HTMLElement>('#demoBarra');
+    const barraTxt = raiz.querySelector<HTMLElement>('#demoBarraTxt');
+    const barraTotal = raiz.querySelector<HTMLElement>('#demoBarraTotal');
+    const resumoEl = raiz.querySelector<HTMLButtonElement>('#demoResumo');
+    const resumoQtd = raiz.querySelector<HTMLElement>('#demoResumoQtd');
+    const resumoTotal = raiz.querySelector<HTMLElement>('#demoResumoTotal');
+    const dicaEl = raiz.querySelector<HTMLElement>('#demoDica');
+    const corpoEl = raiz.querySelector<HTMLElement>('.demo-corpo');
+    const chatEl = raiz.querySelector<HTMLElement>('#demoChat');
+    const balaoEl = raiz.querySelector<HTMLElement>('#demoBalao');
+    const digitandoEl = raiz.querySelector<HTMLElement>('#demoDigitando');
+    const chatAcoes = raiz.querySelector<HTMLElement>('#demoChatAcoes');
+    const waEl = raiz.querySelector<HTMLAnchorElement>('#demoWa');
+    const refazerEl = raiz.querySelector<HTMLButtonElement>('#demoRefazer');
+    const aviso = raiz.querySelector<HTMLElement>('#demoAviso');
+
+    const carrinho = new Map<number, number>();
+    let estado: 'carrinho' | 'chat' = 'carrinho';
+    let digitacao = 0;
+
+    const linhas = () => [...carrinho.entries()].filter(([, qtd]) => qtd > 0);
+    const quantidade = () => linhas().reduce((soma, [, qtd]) => soma + qtd, 0);
+    const subtotal = () =>
+      linhas().reduce((soma, [indice, qtd]) => soma + itens[indice].preco * qtd, 0);
+    const total = () => (quantidade() > 0 ? subtotal() + entrega : 0);
+    const plural = (n: number) => `${n} ${n === 1 ? 'item' : 'itens'}`;
+
+    function anunciar(texto: string) {
+      if (aviso) aviso.textContent = texto;
+    }
+
+    function render() {
+      const qtd = quantidade();
+      const sub = subtotal();
+      const tot = total();
+
+      if (barraTxt) barraTxt.textContent = plural(qtd);
+      if (barraTotal) barraTotal.textContent = money(tot);
+      if (resumoEl) resumoEl.hidden = qtd === 0;
+      if (resumoQtd) resumoQtd.textContent = plural(qtd);
+      if (resumoTotal) resumoTotal.textContent = money(tot);
+      if (dicaEl) dicaEl.hidden = qtd > 0;
+      if (qtdTopoEl) qtdTopoEl.textContent = plural(qtd);
+      if (subEl) subEl.textContent = money(sub);
+      if (totalEl) totalEl.textContent = money(tot);
+      if (enviarEl) enviarEl.disabled = qtd === 0;
+      if (barra) barra.classList.toggle('demo-barra-cheia', qtd > 0);
+
+      if (linhasEl) {
+        linhasEl.innerHTML = linhas()
+          .map(
+            ([indice, qtdItem]) => `
+              <li class="demo-linha">
+                <span class="demo-linha-nome"><b>${qtdItem}×</b> ${esc(itens[indice].nome)}</span>
+                <span class="demo-stepper">
+                  <button type="button" data-menos="${indice}" aria-label="Diminuir ${esc(
+                    itens[indice].nome,
+                  )}">−</button>
+                  <b>${qtdItem}</b>
+                  <button type="button" data-mais="${indice}" aria-label="Aumentar ${esc(
+                    itens[indice].nome,
+                  )}">+</button>
+                </span>
+                <span class="demo-linha-preco">${money(itens[indice].preco * qtdItem)}</span>
+              </li>`,
+          )
+          .join('');
+      }
+
+      if (estado === 'carrinho') {
+        if (vazio) vazio.hidden = qtd > 0;
+        if (carrinhoEl) carrinhoEl.hidden = qtd === 0;
+        if (chatEl) chatEl.hidden = true;
+      } else {
+        if (vazio) vazio.hidden = true;
+        if (carrinhoEl) carrinhoEl.hidden = true;
+        if (chatEl) chatEl.hidden = false;
+      }
+    }
+
+    function voar(botao: HTMLButtonElement) {
+      if (semMovimento || !barra) return;
+      const origem = botao.querySelector<HTMLElement>('.demo-arte');
+      if (!origem) return;
+
+      const de = origem.getBoundingClientRect();
+      const para = barra.getBoundingClientRect();
+      const clone = document.createElement('span');
+      clone.className = 'demo-voo';
+      clone.innerHTML = origem.innerHTML;
+      clone.style.left = `${de.left}px`;
+      clone.style.top = `${de.top}px`;
+      clone.style.width = `${de.width}px`;
+      clone.style.height = `${de.height}px`;
+      document.body.appendChild(clone);
+
+      const dx = para.left + para.width / 2 - (de.left + de.width / 2);
+      const dy = para.top + para.height / 2 - (de.top + de.height / 2);
+
+      requestAnimationFrame(() => {
+        clone.style.transform = `translate(${dx}px, ${dy}px) scale(0.18)`;
+        clone.style.opacity = '0';
+      });
+
+      window.setTimeout(() => clone.remove(), 720);
+
+      barra.classList.remove('demo-pulso');
+      void barra.offsetWidth;
+      barra.classList.add('demo-pulso');
+      window.setTimeout(() => barra.classList.remove('demo-pulso'), 520);
+    }
+
+    function adicionar(indice: number, botao: HTMLButtonElement) {
+      if (estado === 'chat') {
+        estado = 'carrinho';
+        if (balaoEl) balaoEl.textContent = '';
+      }
+      carrinho.set(indice, (carrinho.get(indice) || 0) + 1);
+      render();
+      voar(botao);
+      anunciar(`${itens[indice].nome} adicionado. ${plural(quantidade())} no pedido.`);
+    }
+
+    function montarMensagem() {
+      const itensTexto = linhas().map(
+        ([indice, qtd]) => `${qtd}x ${itens[indice].nome} (${money(itens[indice].preco)})`,
+      );
+
+      return [
+        'Olá! Quero fazer um pedido 🍕',
+        '',
+        ...itensTexto,
+        '',
+        `Subtotal: ${money(subtotal())}`,
+        `Entrega: ${money(entrega)}`,
+        `Total: ${money(total())}`,
+        '',
+        'Pedido de teste montado no site da Flowize.',
+      ].join('\n');
+    }
+
+    function finalizarChat() {
+      if (digitandoEl) digitandoEl.hidden = true;
+      if (chatAcoes) chatAcoes.hidden = false;
+      anunciar('Mensagem pronta. Abra no WhatsApp para enviar o pedido de teste.');
+    }
+
+    function digitar(texto: string) {
+      window.clearTimeout(digitacao);
+      if (!balaoEl) return;
+
+      if (semMovimento) {
+        balaoEl.textContent = texto;
+        finalizarChat();
+        return;
+      }
+
+      balaoEl.textContent = '';
+      let posicao = 0;
+
+      const passo = () => {
+        posicao = Math.min(texto.length, posicao + 3);
+        balaoEl.textContent = texto.slice(0, posicao);
+        if (corpoEl) corpoEl.scrollTop = corpoEl.scrollHeight;
+        if (posicao < texto.length) {
+          digitacao = window.setTimeout(passo, 14);
+        } else {
+          finalizarChat();
+        }
+      };
+
+      digitacao = window.setTimeout(passo, 320);
+    }
+
+    function enviar() {
+      if (quantidade() === 0) return;
+
+      const mensagem = montarMensagem();
+      if (waEl) {
+        waEl.href = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`;
+      }
+
+      estado = 'chat';
+      render();
+      chatEl?.focus({ preventScroll: true });
+      if (chatAcoes) chatAcoes.hidden = true;
+      if (digitandoEl) digitandoEl.hidden = false;
+      anunciar('Pedido montado. Preparando a mensagem.');
+      track('Demo: pedido de teste');
+      digitar(mensagem);
+    }
+
+    function recomecar() {
+      window.clearTimeout(digitacao);
+      carrinho.clear();
+      estado = 'carrinho';
+      if (balaoEl) balaoEl.textContent = '';
+      if (chatAcoes) chatAcoes.hidden = true;
+      render();
+      botoes[0]?.focus({ preventScroll: true });
+      anunciar('Pedido recomeçado. Escolha os itens novamente.');
+    }
+
+    raiz.addEventListener('click', (evento) => {
+      const alvo = (evento.target as Element).closest<HTMLElement>('[data-add], [data-mais], [data-menos]');
+      if (!alvo) return;
+
+      if (alvo.dataset.add !== undefined) {
+        adicionar(Number(alvo.dataset.add), alvo as HTMLButtonElement);
+        return;
+      }
+
+      if (alvo.dataset.mais !== undefined) {
+        const indice = Number(alvo.dataset.mais);
+        carrinho.set(indice, (carrinho.get(indice) || 0) + 1);
+        render();
+        linhasEl
+          ?.querySelector<HTMLButtonElement>(`[data-mais="${indice}"]`)
+          ?.focus({ preventScroll: true });
+        return;
+      }
+
+      if (alvo.dataset.menos !== undefined) {
+        const indice = Number(alvo.dataset.menos);
+        const atual = carrinho.get(indice) || 0;
+        if (atual <= 1) carrinho.delete(indice);
+        else carrinho.set(indice, atual - 1);
+        render();
+        linhasEl
+          ?.querySelector<HTMLButtonElement>(`[data-menos="${indice}"]`)
+          ?.focus({ preventScroll: true });
+      }
+    });
+
+    enviarEl?.addEventListener('click', enviar);
+    refazerEl?.addEventListener('click', recomecar);
+
+    resumoEl?.addEventListener('click', () => {
+      raiz.querySelector<HTMLElement>('.demo-telefone')?.scrollIntoView({
+        behavior: semMovimento ? 'auto' : 'smooth',
+        block: 'center',
+      });
+      enviarEl?.focus({ preventScroll: true });
+    });
+
+    render();
+  }
+</script>
+
+<style is:global>
+  /* Seção */
+  .demo {
+    position: relative;
+    overflow: clip;
+    padding-block: clamp(64px, 9vw, 116px);
+    background: #07070a;
+    color: #fff;
+  }
+
+  .demo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(#ffffff14 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(90% 70% at 62% 40%, #000 10%, transparent 74%);
+    pointer-events: none;
+  }
+
+  .demo-luz {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(40% 50% at 12% 4%, #00d5e82b, transparent 70%),
+      radial-gradient(38% 46% at 94% 92%, #ff2e9324, transparent 72%);
+    pointer-events: none;
+  }
+
+  .demo-grade {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 0.74fr 1.26fr;
+    align-items: center;
+    gap: clamp(36px, 5vw, 64px);
+  }
+
+  .demo-rotulo {
+    color: #8f8f9c;
+  }
+
+  .demo-intro h2 {
+    max-width: 15ch;
+    margin: 0 0 16px;
+    font-size: clamp(2rem, 3.9vw, 2.9rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+
+  .demo-intro > p {
+    max-width: 42ch;
+    margin: 0;
+    color: #b9b9c4;
+    font-size: 1.03rem;
+  }
+
+  .demo-passos {
+    display: grid;
+    gap: 10px;
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .demo-passos li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    color: #d8d8e0;
+    font-size: 0.94rem;
+  }
+
+  .demo-passos b {
+    flex: none;
+    color: transparent;
+    font: 800 1rem/1 'Bricolage Grotesque', sans-serif;
+    -webkit-text-stroke: 1px #8f8f9c;
+  }
+
+  .demo-nota {
+    max-width: 44ch;
+    margin: 26px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid #ffffff1a;
+    color: #83838f;
+    font-size: 0.82rem;
+  }
+
+  /* Palco */
+  .demo-palco {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 306px;
+    align-items: center;
+    gap: 26px;
+  }
+
+  .demo-interativo {
+    display: none;
+  }
+
+  html.js .demo-interativo {
+    display: contents;
+  }
+
+  .demo-sem-js {
+    display: grid;
+    grid-column: 1 / -1;
+    justify-items: start;
+    gap: 10px;
+    padding: 28px;
+    border: 1px dashed #ffffff2e;
+    border-radius: 22px;
+    background: #ffffff08;
+    color: #b9b9c4;
+  }
+
+  .demo-sem-js b {
+    color: #fff;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1.1rem;
+  }
+
+  .demo-sem-js p {
+    max-width: 48ch;
+    margin: 0;
+  }
+
+  html.js .demo-sem-js {
+    display: none;
+  }
+
+  .demo-sem-js .btn-primario {
+    margin-top: 4px;
+    background: #fff;
+    color: var(--tinta);
+  }
+
+  .demo-sem-js .btn-primario:hover {
+    background: var(--ciano);
+    box-shadow:
+      4px 0 0 -1px #fff,
+      -4px 0 0 -1px var(--magenta);
+  }
+
+  .demo-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Cardápio */
+  .demo-cardapio {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid #ffffff1f;
+    border-radius: 22px;
+    background: #ffffff08;
+    backdrop-filter: blur(6px);
+  }
+
+  .demo-cardapio-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 2px 4px 8px;
+  }
+
+  .demo-mini {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .demo-mini-selo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #0f9d5824;
+    color: #7ee2a8;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .demo-mini-selo::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #37d67a;
+  }
+
+  .demo-item {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    background: #ffffff0a;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .demo-item:hover {
+    border-color: #ffffff2e;
+    background: #ffffff14;
+    transform: translateY(-2px);
+  }
+
+  .demo-item:active {
+    transform: scale(0.985);
+  }
+
+  .demo-arte {
+    display: block;
+    width: 58px;
+    height: 58px;
+    overflow: hidden;
+    border-radius: 11px;
+    background: #f3efec;
+  }
+
+  .demo-arte svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .demo-item-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .demo-item-info b {
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .demo-item-info small {
+    overflow: hidden;
+    color: #8f8f9c;
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .demo-item-info strong {
+    margin-top: 3px;
+    color: #fff;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .demo-mais {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    color: #0b0b0f;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+    transition:
+      background 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .demo-item:hover .demo-mais {
+    background: linear-gradient(135deg, #00d5e8, #ff2e93);
+    box-shadow: 0 0 0 4px #ffffff14;
+  }
+
+  .demo-dica {
+    margin: 2px 4px 2px;
+    color: #6f6f7d;
+    font-size: 0.68rem;
+  }
+
+  .demo-resumo {
+    display: none;
+  }
+
+  .demo-resumo[hidden] {
+    display: none;
+  }
+
+  /* Telefone */
+  .demo-telefone {
+    position: relative;
+    width: min(306px, 100%);
+    margin-inline: auto;
+    padding: 8px;
+    border-radius: 40px;
+    background: #14141b;
+    box-shadow:
+      0 46px 90px #000000a6,
+      0 0 0 1px #ffffff1f,
+      20px 0 80px -34px #00d5e880,
+      -20px 0 80px -34px #ff2e9366;
+  }
+
+  .demo-telefone::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    z-index: 3;
+    width: 78px;
+    height: 16px;
+    border-radius: 999px;
+    background: #14141b;
+    transform: translateX(-50%);
+  }
+
+  .demo-tela {
+    display: flex;
+    flex-direction: column;
+    height: 536px;
+    overflow: hidden;
+    border-radius: 33px;
+    background: #fff;
+    color: #16161c;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+  }
+
+  .demo-topo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 26px 14px 10px;
+    background: #0b0b0f;
+    color: #fff;
+  }
+
+  .demo-volta {
+    margin-top: -2px;
+    color: #8f8f9c;
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .demo-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #d62828;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.64rem;
+    font-weight: 800;
+  }
+
+  .demo-contato {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .demo-contato b {
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+
+  .demo-contato small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #8f8f9c;
+    font-size: 0.6rem;
+  }
+
+  .demo-contato i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #37d67a;
+  }
+
+  .demo-corpo {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    background:
+      radial-gradient(#0b0b0f08 1px, transparent 1px) 0 0 / 16px 16px,
+      #efeae2;
+  }
+
+  /* Estado vazio */
+  .demo-vazio {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .demo-vazio[hidden] {
+    display: none;
+  }
+
+  .demo-vazio-chat {
+    display: grid;
+    gap: 6px;
+  }
+
+  .demo-vazio-carrinho {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin: auto 0;
+    padding: 22px 18px;
+    border: 1px dashed #0b0b0f24;
+    border-radius: 14px;
+    background: #ffffff66;
+    text-align: center;
+  }
+
+  .demo-vazio svg {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 8px;
+    fill: none;
+    stroke: #b9b9c4;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .demo-vazio b {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.95rem;
+  }
+
+  .demo-vazio small {
+    max-width: 20ch;
+    color: #8f8f9c;
+    font-size: 0.68rem;
+  }
+
+  /* Carrinho */
+  .demo-carrinho {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 3px #0b0b0f14;
+  }
+
+  .demo-carrinho[hidden] {
+    display: none;
+  }
+
+  .demo-carrinho-topo {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eeeef2;
+  }
+
+  .demo-carrinho-topo b {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.92rem;
+  }
+
+  .demo-carrinho-topo span {
+    color: #8f8f9c;
+    font-size: 0.64rem;
+  }
+
+  .demo-linhas {
+    display: grid;
+    gap: 2px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .demo-linha {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2px 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f3f6;
+  }
+
+  .demo-linha:last-child {
+    border-bottom: 0;
+  }
+
+  .demo-linha-nome {
+    overflow: hidden;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .demo-linha-nome b {
+    color: #0a7f8a;
+    font-weight: 700;
+  }
+
+  .demo-linha-preco {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .demo-stepper {
+    display: inline-flex;
+    grid-row: 2;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-self: start;
+    gap: 2px;
+    margin-top: 2px;
+    padding: 1px;
+    border: 1px solid #e2e2e8;
+    border-radius: 999px;
+  }
+
+  .demo-stepper button {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #0b0b0f;
+    font: inherit;
+    font-size: 0.8rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .demo-stepper button:hover {
+    background: #f3f3f6;
+  }
+
+  .demo-stepper b {
+    min-width: 16px;
+    font-size: 0.66rem;
+    text-align: center;
+  }
+
+  .demo-totais {
+    display: grid;
+    gap: 3px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #eeeef2;
+    color: #62626e;
+    font-size: 0.66rem;
+  }
+
+  .demo-totais span {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .demo-totais b {
+    color: #16161c;
+    font-weight: 600;
+  }
+
+  .demo-totais .demo-total {
+    margin-top: 3px;
+    padding-top: 6px;
+    border-top: 1px dashed #e2e2e8;
+    color: #16161c;
+    font-size: 0.74rem;
+    font-weight: 600;
+  }
+
+  .demo-totais .demo-total b {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  .demo-enviar {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 10px;
+    border: 0;
+    border-radius: 11px;
+    background: #0b0b0f;
+    color: #fff;
+    font: 600 0.72rem/1 'Instrument Sans', system-ui, sans-serif;
+    cursor: pointer;
+    transition:
+      background 0.18s ease,
+      opacity 0.18s ease;
+  }
+
+  .demo-enviar:hover:not(:disabled) {
+    background: linear-gradient(100deg, #0b0b0f, #26262e);
+    box-shadow:
+      3px 0 0 -1px #00d5e8,
+      -3px 0 0 -1px #ff2e93;
+  }
+
+  .demo-enviar:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+  }
+
+  /* Chat */
+  .demo-chat {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 7px;
+    padding: 14px 12px;
+  }
+
+  .demo-chat[hidden] {
+    display: none;
+  }
+
+  .demo-balao {
+    max-width: 88%;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    box-shadow: 0 1px 1px #0b0b0f14;
+    animation: demo-balao 0.24s ease both;
+  }
+
+  .demo-recebido {
+    align-self: flex-start;
+    border-top-left-radius: 3px;
+    background: #fff;
+  }
+
+  .demo-enviado {
+    align-self: flex-end;
+    border-top-right-radius: 3px;
+    background: #d9fdd3;
+  }
+
+  .demo-enviado:empty {
+    display: none;
+  }
+
+  .demo-digitando {
+    display: inline-flex;
+    align-self: flex-end;
+    gap: 3px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    border-top-right-radius: 3px;
+    background: #d9fdd3;
+  }
+
+  .demo-digitando[hidden] {
+    display: none;
+  }
+
+  .demo-digitando i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #62626e;
+    animation: demo-pontos 1.1s infinite;
+  }
+
+  .demo-digitando i:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .demo-digitando i:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .demo-chat-acoes {
+    position: sticky;
+    bottom: 0;
+    display: grid;
+    gap: 6px;
+    margin: auto -12px -14px;
+    padding: 10px 12px 14px;
+    background: linear-gradient(180deg, #efeae200, #efeae2 30%);
+  }
+
+  .demo-chat-acoes[hidden] {
+    display: none;
+  }
+
+  .demo-wa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 10px;
+    border-radius: 11px;
+    background: #0b0b0f;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .demo-wa:hover {
+    background: #128c4a;
+  }
+
+  .demo-refazer {
+    padding: 8px;
+    border: 0;
+    background: transparent;
+    color: #62626e;
+    font: 500 0.66rem 'Instrument Sans', system-ui, sans-serif;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+
+  .demo-refazer:hover {
+    color: #16161c;
+  }
+
+  /* Barra inferior */
+  .demo-barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 16px 13px;
+    border-top: 1px solid #ffffff1f;
+    background: #0b0b0f;
+    color: #8f8f9c;
+    font-size: 0.68rem;
+  }
+
+  .demo-barra b {
+    color: #fff;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.82rem;
+  }
+
+  .demo-barra-cheia {
+    background: linear-gradient(100deg, #0b0b0f, #1b1b22);
+  }
+
+  .demo-barra-cheia b {
+    color: #fff;
+    text-shadow:
+      2px 0 #00d5e8,
+      -2px 0 #ff2e93;
+  }
+
+  .demo-pulso {
+    animation: demo-pulso 0.5s ease;
+  }
+
+  /* Item voando até a barra */
+  .demo-voo {
+    position: fixed;
+    z-index: 200;
+    overflow: hidden;
+    border-radius: 11px;
+    background: #f3efec;
+    box-shadow: 0 10px 30px #00000059;
+    pointer-events: none;
+    transition:
+      transform 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.55s ease 0.12s;
+  }
+
+  .demo-voo svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  @keyframes demo-balao {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+  }
+
+  @keyframes demo-pontos {
+    0%,
+    60%,
+    100% {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+  }
+
+  @keyframes demo-pulso {
+    0% {
+      box-shadow: inset 0 0 0 2px #00d5e8;
+    }
+    100% {
+      box-shadow: inset 0 0 0 2px transparent;
+    }
+  }
+
+  @media (max-width: 1040px) {
+    .demo-grade {
+      grid-template-columns: 1fr;
+    }
+
+    .demo-intro h2 {
+      max-width: 20ch;
+    }
+
+    .demo-palco {
+      grid-template-columns: minmax(0, 1fr) 306px;
+      margin-top: 8px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .demo-palco {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+
+    .demo-cardapio {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .demo-cardapio-topo {
+      grid-column: 1 / -1;
+    }
+
+    .demo-item {
+      grid-template-columns: 1fr;
+      align-content: start;
+      gap: 7px;
+      padding: 8px;
+    }
+
+    .demo-arte {
+      width: 100%;
+      height: 74px;
+    }
+
+    .demo-item-info b {
+      font-size: 0.8rem;
+    }
+
+    .demo-item-info small {
+      display: none;
+    }
+
+    .demo-mais {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 26px;
+      height: 26px;
+      box-shadow: 0 6px 16px #0b0b0f66;
+    }
+
+    .demo-item {
+      position: relative;
+    }
+
+    .demo-dica {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+
+    .demo-resumo {
+      display: flex;
+      grid-column: 1 / -1;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+      padding: 11px 13px;
+      border: 0;
+      border-radius: 12px;
+      background: #fff;
+      color: #0b0b0f;
+      font: 600 0.76rem/1 'Instrument Sans', system-ui, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 8px 20px #00000059;
+    }
+
+    .demo-resumo span {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+    }
+
+    .demo-resumo span:last-child {
+      align-items: center;
+      color: #0a7f8a;
+      white-space: nowrap;
+    }
+
+    .demo-resumo i {
+      font-style: normal;
+    }
+
+    .demo-resumo:active {
+      transform: scale(0.99);
+    }
+
+    .demo-telefone {
+      width: min(320px, 92vw);
+    }
+  }
+
+  @media (max-width: 400px) {
+    .demo-cardapio {
+      gap: 6px;
+      padding: 10px;
+    }
+
+    .demo-item {
+      padding: 6px;
+    }
+
+    .demo-arte {
+      height: 62px;
+    }
+
+    .demo-mais {
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .demo-tela {
+      height: 508px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .demo-voo {
+      display: none;
+    }
+
+    .demo-balao,
+    .demo-digitando i {
+      animation: none;
+    }
+
+    .demo-pulso {
+      animation: none;
+      box-shadow: inset 0 0 0 2px #00d5e8;
+    }
+  }
+</style>

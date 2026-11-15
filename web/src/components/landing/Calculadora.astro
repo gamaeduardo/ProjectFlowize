@@ -1,0 +1,691 @@
+---
+import { site, waLink } from '../../lib/site';
+
+const taxas = [12, 15, 20, 27];
+const taxaInicial = 15;
+const minimo = 1000;
+const maximo = 30000;
+const passo = 500;
+const receitaInicial = 8000;
+const pctInicial = ((receitaInicial - minimo) / (maximo - minimo)) * 100;
+
+const brl = (valor: number) =>
+  Math.round(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
+const comissaoInicial = receitaInicial * (taxaInicial / 100);
+const mensagemInicial = `Olá! Faturei ${brl(receitaInicial)} por mês no delivery e quero fugir da comissão de ${taxaInicial}%. Como funciona a Flowize?`;
+---
+
+<section class="calc-secao" id="comissao" aria-labelledby="calc-titulo">
+  <div class="container calc-grade">
+    <div class="calc-texto" data-revelar>
+      <span class="rotulo"><i></i> Comissão zero</span>
+      <h2 id="calc-titulo">Seu pedido inteiro fica com você.</h2>
+      <p>
+        Marketplaces chegam a cobrar <b class="calc-pico" id="calcPico">27%</b> por venda. Na
+        Flowize, a comissão é zero: você paga a mensalidade e recebe o pedido direto no seu
+        WhatsApp.
+      </p>
+
+      <div class="calc-manifesto" aria-hidden="true">
+        <span class="calc-zero">0<em>%</em></span>
+        <small>de comissão<br />por pedido</small>
+      </div>
+
+      <ul class="calc-lista">
+        <li><span aria-hidden="true">✓</span> Sem percentual sobre vendas</li>
+        <li><span aria-hidden="true">✓</span> Pedido direto no seu WhatsApp</li>
+        <li><span aria-hidden="true">✓</span> Mensalidade combinada, sem taxa escondida</li>
+      </ul>
+    </div>
+
+    <div
+      class="calc"
+      data-calc
+      data-whatsapp={site.whatsapp}
+      data-revelar
+      role="group"
+      aria-label="Simulador de comissão"
+    >
+      <div class="calc-cabeca">
+        <span class="calc-selo">Simulador</span>
+        <div class="calc-taxa">
+          <b id="calcTaxa">{taxaInicial}%</b>
+          <small>comissão do marketplace</small>
+        </div>
+      </div>
+
+      <noscript>
+        <p class="calc-noscript">
+          Simulação padrão com 15% de comissão e R$ 8.000/mês. Ative o JavaScript para ajustar os
+          valores.
+        </p>
+      </noscript>
+
+      <div class="calc-grupo" role="group" aria-labelledby="calc-legenda">
+        <span class="calc-legenda" id="calc-legenda">Taxa por pedido</span>
+        <div class="calc-tarifas">
+          {
+            taxas.map((taxa) => (
+              <button
+                type="button"
+                class="calc-tarifa"
+                data-taxa={taxa}
+                aria-pressed={taxa === taxaInicial ? 'true' : 'false'}
+              >
+                {taxa}%
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <label class="calc-campo" for="calcRange">
+        <span>Faturamento mensal</span>
+        <output id="calcReceita" for="calcRange">{brl(receitaInicial)}</output>
+      </label>
+      <input
+        id="calcRange"
+        class="calc-range"
+        type="range"
+        min={minimo}
+        max={maximo}
+        step={passo}
+        value={receitaInicial}
+        style={`--p: ${pctInicial}%`}
+        aria-describedby="calcDica"
+      />
+
+      <div class="calc-resultado">
+        <div class="calc-linha">
+          <span>Marketplace</span>
+          <b><span id="calcMkt">{brl(comissaoInicial)}</span><i>/mês</i></b>
+        </div>
+        <div class="calc-linha">
+          <span>Flowize</span>
+          <b class="calc-zero-linha"><span>{brl(0)}</span><i>/mês</i></b>
+        </div>
+        <div class="calc-eco">
+          <small>Em um ano, você deixa de perder</small>
+          <b id="calcEco">{brl(comissaoInicial * 12)}</b>
+          <span>em comissões</span>
+        </div>
+      </div>
+
+      <a
+        class="btn btn-primario calc-cta"
+        id="calcCta"
+        href={waLink(mensagemInicial)}
+        data-wa
+        target="_blank"
+        rel="noopener"
+      >
+        Quero comissão zero
+      </a>
+
+      <p class="calc-dica" id="calcDica">
+        Simulação com taxas de 12% a 27% praticadas por marketplaces. Não inclui a mensalidade da
+        Flowize, combinada caso a caso.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { track } from '../../lib/track';
+
+  const raiz = document.querySelector<HTMLElement>('[data-calc]');
+
+  if (raiz) {
+    const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const whatsapp = raiz.dataset.whatsapp || '';
+    const minimo = 1000;
+    const maximo = 30000;
+
+    const range = raiz.querySelector<HTMLInputElement>('#calcRange');
+    const receitaEl = raiz.querySelector<HTMLElement>('#calcReceita');
+    const taxaEl = raiz.querySelector<HTMLElement>('#calcTaxa');
+    const mktEl = raiz.querySelector<HTMLElement>('#calcMkt');
+    const ecoEl = raiz.querySelector<HTMLElement>('#calcEco');
+    const cta = raiz.querySelector<HTMLAnchorElement>('#calcCta');
+    const chips = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-taxa]'));
+
+    let taxa = Number(chips.find((chip) => chip.getAttribute('aria-pressed') === 'true')?.dataset.taxa || 15);
+    let receita = Number(range?.value || 8000);
+    let exibido = receita * (taxa / 100);
+    let quadro = 0;
+
+    const brl = (valor: number) =>
+      Math.round(valor).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        maximumFractionDigits: 0,
+      });
+
+    function pintar(valor: number) {
+      if (mktEl) mktEl.textContent = brl(valor);
+      if (ecoEl) ecoEl.textContent = brl(valor * 12);
+    }
+
+    function animar(alvo: number) {
+      if (semMovimento) {
+        exibido = alvo;
+        pintar(alvo);
+        return;
+      }
+
+      const de = exibido;
+      const inicio = performance.now();
+      cancelAnimationFrame(quadro);
+
+      const passo = (agora: number) => {
+        const t = Math.min(1, (agora - inicio) / 300);
+        const suave = 1 - Math.pow(1 - t, 3);
+        exibido = de + (alvo - de) * suave;
+        pintar(exibido);
+        if (t < 1) quadro = requestAnimationFrame(passo);
+      };
+
+      quadro = requestAnimationFrame(passo);
+    }
+
+    function atualizar(anunciar = false) {
+      const comissao = receita * (taxa / 100);
+      const pct = ((receita - minimo) / (maximo - minimo)) * 100;
+
+      if (receitaEl) receitaEl.textContent = brl(receita);
+      if (taxaEl) taxaEl.textContent = `${taxa}%`;
+      if (range) range.style.setProperty('--p', `${pct}%`);
+
+      chips.forEach((chip) => {
+        chip.setAttribute('aria-pressed', String(Number(chip.dataset.taxa) === taxa));
+      });
+
+      if (cta) {
+        const mensagem = `Olá! Faturei ${brl(receita)} por mês no delivery e quero fugir da comissão de ${taxa}%. Como funciona a Flowize?`;
+        cta.href = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`;
+      }
+
+      animar(comissao);
+      if (anunciar) track('Calculadora: simulação');
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        taxa = Number(chip.dataset.taxa || taxa);
+        atualizar(true);
+      });
+    });
+
+    range?.addEventListener('input', () => {
+      receita = Number(range.value);
+      atualizar();
+    });
+
+    range?.addEventListener('change', () => track('Calculadora: simulação'));
+
+    atualizar();
+
+    // Sobe o "27%" do texto quando a seção aparece.
+    const pico = document.querySelector<HTMLElement>('#calcPico');
+    if (pico) {
+      if (semMovimento || !('IntersectionObserver' in window)) {
+        pico.textContent = '27%';
+      } else {
+        const observador = new IntersectionObserver(
+          (entradas) => {
+            if (!entradas.some((entrada) => entrada.isIntersecting)) return;
+            observador.disconnect();
+
+            const inicio = performance.now();
+            const passo = (agora: number) => {
+              const t = Math.min(1, (agora - inicio) / 900);
+              const suave = 1 - Math.pow(1 - t, 3);
+              pico.textContent = `${Math.round(27 * suave)}%`;
+              if (t < 1) requestAnimationFrame(passo);
+            };
+
+            requestAnimationFrame(passo);
+          },
+          { threshold: 0.4 },
+        );
+
+        observador.observe(pico);
+      }
+    }
+  }
+</script>
+
+<style is:global>
+  .calc-secao {
+    position: relative;
+    padding-block: clamp(56px, 8.5vw, 104px);
+    background: var(--branco);
+  }
+
+  .calc-grade {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: center;
+    gap: clamp(36px, 5vw, 64px);
+  }
+
+  .calc-texto h2 {
+    max-width: 15ch;
+    margin: 0 0 16px;
+    font-size: clamp(2rem, 4.2vw, 3rem);
+    font-weight: 800;
+    line-height: 1.03;
+  }
+
+  .calc-texto > p {
+    max-width: 44ch;
+    margin: 0;
+    color: var(--mudo);
+    font-size: 1.03rem;
+  }
+
+  .calc-pico {
+    color: var(--tinta);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  .calc-manifesto {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    margin-top: clamp(24px, 4vw, 36px);
+  }
+
+  .calc-zero {
+    color: transparent;
+    font: 800 clamp(5rem, 11vw, 7.5rem) / 0.78 'Bricolage Grotesque', sans-serif;
+    letter-spacing: -0.06em;
+    -webkit-text-stroke: 2px var(--tinta);
+    text-shadow:
+      5px 0 var(--ciano),
+      -5px 0 var(--magenta);
+  }
+
+  .calc-zero em {
+    font-style: normal;
+    font-size: 0.42em;
+    vertical-align: 0.62em;
+  }
+
+  .calc-manifesto small {
+    padding-bottom: 6px;
+    color: var(--mudo);
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .calc-lista {
+    display: grid;
+    gap: 9px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--mudo);
+    font-size: 0.94rem;
+  }
+
+  .calc-lista li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .calc-lista span {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: #d9f8fa;
+    color: #0a7f8a;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  /* Cartão simulador */
+  .calc {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(22px, 3vw, 30px);
+    border-radius: 28px;
+    background: var(--tinta);
+    color: #fff;
+    box-shadow:
+      0 44px 90px -60px #0b0b0f,
+      22px 0 80px -52px #00d5e8,
+      -22px 0 80px -52px #ff2e93;
+  }
+
+  .calc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(52% 60% at 88% 4%, #00d5e82e, transparent 70%),
+      radial-gradient(46% 54% at 6% 96%, #ff2e9326, transparent 72%),
+      radial-gradient(#ffffff12 1px, transparent 1px) 0 0 / 20px 20px;
+    pointer-events: none;
+  }
+
+  .calc > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .calc-cabeca {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .calc-selo {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border: 1px solid #ffffff2e;
+    border-radius: 999px;
+    color: #b9b9c4;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .calc-selo::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ciano);
+    box-shadow: 0 0 0 3px #00d5e81f;
+  }
+
+  .calc-taxa {
+    text-align: right;
+  }
+
+  .calc-taxa b {
+    display: block;
+    background: linear-gradient(90deg, var(--ciano), var(--magenta));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font: 800 clamp(2.1rem, 4vw, 2.7rem) / 1 'Bricolage Grotesque', sans-serif;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc-taxa small {
+    display: block;
+    margin-top: 2px;
+    color: #8f8f9c;
+    font-size: 0.64rem;
+  }
+
+  .calc-noscript {
+    margin: 16px 0 0;
+    padding: 10px 12px;
+    border: 1px dashed #ffffff2e;
+    border-radius: 10px;
+    color: #b9b9c4;
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  html:not(.js) .calc-grupo,
+  html:not(.js) .calc-range {
+    display: none;
+  }
+
+  .calc-grupo {
+    margin-top: 22px;
+  }
+
+  .calc-legenda {
+    display: block;
+    margin-bottom: 8px;
+    color: #8f8f9c;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .calc-tarifas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .calc-tarifa {
+    padding: 10px 4px;
+    border: 1px solid #ffffff26;
+    border-radius: 10px;
+    background: #ffffff08;
+    color: #b9b9c4;
+    font: 600 0.82rem/1 'Instrument Sans', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+      background-color 0.16s ease,
+      border-color 0.16s ease,
+      color 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+
+  .calc-tarifa:hover {
+    border-color: #ffffff59;
+    color: #fff;
+  }
+
+  .calc-tarifa[aria-pressed='true'] {
+    border-color: #fff;
+    background: #fff;
+    color: var(--tinta);
+    box-shadow:
+      3px 0 0 -1px var(--ciano),
+      -3px 0 0 -1px var(--magenta);
+  }
+
+  .calc-campo {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 22px;
+    color: #b9b9c4;
+    font-size: 0.76rem;
+  }
+
+  .calc-campo output {
+    color: #fff;
+    font: 700 1.05rem 'Bricolage Grotesque', sans-serif;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc-range {
+    display: block;
+    width: 100%;
+    height: 6px;
+    margin: 12px 0 0;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      var(--ciano) 0 var(--p, 24%),
+      #ffffff1f var(--p, 24%) 100%
+    );
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .calc-range::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--tinta);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 6px 18px #00000066;
+    appearance: none;
+  }
+
+  .calc-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: 3px solid var(--tinta);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 6px 18px #00000066;
+  }
+
+  .calc-range:focus-visible {
+    outline: 3px solid var(--magenta);
+    outline-offset: 6px;
+  }
+
+  .calc-resultado {
+    margin-top: 20px;
+    padding: 14px 16px 16px;
+    border: 1px solid #ffffff1f;
+    border-radius: 16px;
+    background: #ffffff08;
+  }
+
+  .calc-linha {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    color: #b9b9c4;
+    font-size: 0.78rem;
+  }
+
+  .calc-linha b {
+    color: #fff;
+    font: 700 0.92rem 'Bricolage Grotesque', sans-serif;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .calc-linha b i {
+    color: #8f8f9c;
+    font: 500 0.66rem 'Instrument Sans', system-ui, sans-serif;
+    font-style: normal;
+  }
+
+  .calc-zero-linha span {
+    color: var(--ciano);
+  }
+
+  .calc-eco {
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px dashed #ffffff24;
+  }
+
+  .calc-eco small {
+    display: block;
+    color: #8f8f9c;
+    font-size: 0.66rem;
+  }
+
+  .calc-eco b {
+    display: block;
+    margin-top: 1px;
+    background: linear-gradient(90deg, var(--ciano), var(--magenta));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font: 800 clamp(1.8rem, 3.6vw, 2.35rem) / 1.1 'Bricolage Grotesque', sans-serif;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc-eco span {
+    color: #8f8f9c;
+    font-size: 0.68rem;
+  }
+
+  .calc .calc-cta {
+    width: 100%;
+    margin-top: 18px;
+    background: #fff;
+    color: var(--tinta);
+  }
+
+  .calc .calc-cta:hover {
+    background: var(--ciano);
+    box-shadow:
+      4px 0 0 -1px #fff,
+      -4px 0 0 -1px var(--magenta);
+  }
+
+  .calc-dica {
+    margin: 12px 0 0;
+    color: #6f6f7d;
+    font-size: 0.65rem;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 980px) {
+    .calc-grade {
+      grid-template-columns: 1fr;
+    }
+
+    .calc-texto h2 {
+      max-width: 20ch;
+    }
+
+    .calc {
+      max-width: 560px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .calc {
+      border-radius: 22px;
+    }
+
+    .calc-cabeca {
+      align-items: center;
+    }
+
+    .calc-selo {
+      display: none;
+    }
+
+    .calc-taxa {
+      text-align: left;
+    }
+
+    .calc-manifesto {
+      gap: 10px;
+    }
+
+    .calc-zero {
+      -webkit-text-stroke-width: 1.5px;
+      text-shadow:
+        3px 0 var(--ciano),
+        -3px 0 var(--magenta);
+    }
+  }
+</style>
