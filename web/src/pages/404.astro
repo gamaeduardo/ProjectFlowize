@@ -24,11 +24,13 @@ import Marca from '../components/marca/Marca.astro';
 
 <style is:global>
   :root {
-    --tinta: #1c1210;
-    --papel: #fbf8f4;
-    --acento: #d62828;
-    --linha: #e6dbcd;
-    --mudo: #6d625c;
+    --tinta: #0b0b0f;
+    --papel: #f6f6f8;
+    --acento: #0b0b0f;
+    --ciano: #00d5e8;
+    --magenta: #ff2e93;
+    --linha: #e2e2e8;
+    --mudo: #62626e;
   }
 
   * {
@@ -52,7 +54,10 @@ import Marca from '../components/marca/Marca.astro';
     min-height: 100dvh;
     place-items: center;
     padding: 32px 24px;
-    background: radial-gradient(120% 120% at 85% 8%, #f6e9e6 0%, var(--papel) 58%);
+    background:
+      radial-gradient(38% 44% at 12% 12%, #00d5e82e, transparent 68%),
+      radial-gradient(36% 42% at 88% 18%, #ff2e9326, transparent 70%),
+      var(--papel);
   }
 
   .caixa {
@@ -68,9 +73,13 @@ import Marca from '../components/marca/Marca.astro';
   .codigo {
     display: block;
     margin: 36px 0 6px;
-    color: var(--acento);
+    color: transparent;
     font: 800 3.2rem/1 'Bricolage Grotesque', sans-serif;
     letter-spacing: -0.04em;
+    -webkit-text-stroke: 1.6px var(--tinta);
+    text-shadow:
+      4px 0 var(--ciano),
+      -4px 0 var(--magenta);
   }
 
   h1 {
@@ -112,7 +121,10 @@ import Marca from '../components/marca/Marca.astro';
   }
 
   .btn-primario:hover {
-    background: #b21f1f;
+    background: #26262e;
+    box-shadow:
+      4px 0 0 -1px var(--ciano),
+      -4px 0 0 -1px var(--magenta);
   }
 
   .btn-contorno {
@@ -126,7 +138,7 @@ import Marca from '../components/marca/Marca.astro';
   }
 
   :focus-visible {
-    outline: 3px solid var(--acento);
+    outline: 3px solid var(--magenta);
     outline-offset: 3px;
   }
 </style>

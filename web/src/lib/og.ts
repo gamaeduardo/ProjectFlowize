@@ -39,9 +39,46 @@ export type OgOpcoes = {
   fundo?: string;
 };
 
+/** Luminância relativa para escolher texto claro ou escuro sobre uma cor. */
+function luminancia(hex: string): number {
+  const limpo = hex.replace('#', '');
+  const cheio =
+    limpo.length === 3
+      ? limpo
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : limpo;
+  const canais = [0, 2, 4].map((i) => parseInt(cheio.slice(i, i + 2), 16) / 255);
+  const linear = (v: number) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear(canais[0]) + 0.7152 * linear(canais[1]) + 0.0722 * linear(canais[2]);
+}
+
+/** Marca da Flowize em SVG, com as camadas ciano e magenta deslocadas. */
+function marcaDataUri(cor: string): string {
+  const camada = (x: number, y: number, tinta: string) =>
+    `<g transform="translate(${x} ${y})" opacity=".95">` +
+    `<circle cx="32" cy="32" r="18" fill="none" stroke="${tinta}" stroke-width="10"/>` +
+    `<rect x="3" y="27" width="58" height="10" rx="5" fill="${tinta}"/>` +
+    `</g>`;
+
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+    camada(-2.4, -1.2, '#00d5e8') +
+    camada(2.4, 1.2, '#ff2e93') +
+    `<circle cx="32" cy="32" r="18" fill="none" stroke="${cor}" stroke-width="10"/>` +
+    `<rect x="3" y="27" width="58" height="10" rx="5" fill="${cor}"/>` +
+    '</svg>';
+
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+}
+
 /** Gera a imagem de compartilhamento (1200x630) em PNG. */
 export async function renderOg(opcoes: OgOpcoes): Promise<Uint8Array> {
-  const { titulo, subtitulo = '', destaque = '#d62828', fundo = '#1c1210' } = opcoes;
+  const { titulo, subtitulo = '', destaque = '#00d5e8', fundo = '#0b0b0f' } = opcoes;
+
+  const corDoFundo = luminancia(fundo) > 0.45 ? '#0b0b0f' : '#ffffff';
+  const corDoDestaque = luminancia(destaque) > 0.55 ? '#0b0b0f' : '#ffffff';
 
   const svg = await satori(
     {
@@ -50,12 +87,13 @@ export async function renderOg(opcoes: OgOpcoes): Promise<Uint8Array> {
         style: {
           width: '1200px',
           height: '630px',
+          boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '72px',
           background: fundo,
-          color: '#ffffff',
+          color: corDoFundo,
           fontFamily: 'Instrument Sans',
         },
         children: [
@@ -65,20 +103,12 @@ export async function renderOg(opcoes: OgOpcoes): Promise<Uint8Array> {
               style: { display: 'flex', alignItems: 'center', gap: '18px' },
               children: [
                 {
-                  type: 'div',
+                  type: 'img',
                   props: {
-                    style: {
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '16px',
-                      background: destaque,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '30px',
-                      fontWeight: 700,
-                    },
-                    children: 'F',
+                    src: marcaDataUri(corDoFundo),
+                    width: 64,
+                    height: 64,
+                    style: { width: '64px', height: '64px' },
                   },
                 },
                 {
@@ -131,10 +161,9 @@ export async function renderOg(opcoes: OgOpcoes): Promise<Uint8Array> {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 fontSize: '26px',
-                opacity: 0.65,
               },
               children: [
-                { type: 'div', props: { children: 'flowizehub.com' } },
+                { type: 'div', props: { style: { opacity: 0.65 }, children: 'flowizehub.com' } },
                 {
                   type: 'div',
                   props: {
@@ -142,7 +171,7 @@ export async function renderOg(opcoes: OgOpcoes): Promise<Uint8Array> {
                       padding: '10px 22px',
                       borderRadius: '999px',
                       background: destaque,
-                      color: '#ffffff',
+                      color: corDoDestaque,
                       opacity: 1,
                       fontWeight: 700,
                       fontSize: '24px',

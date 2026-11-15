@@ -7,6 +7,15 @@ import { site, siteUrl, waLink } from '../lib/site';
 
 const exemplos = (await getClientes()).filter(({ cfg }) => cfg.status !== 'inativo');
 
+const faixa = [
+  'Sem comissão por pedido',
+  'Link próprio',
+  'QR code incluído',
+  'Pedido no WhatsApp',
+  'Seu visual',
+  'Sem aplicativo',
+];
+
 const faq = [
   {
     pergunta: 'Preciso instalar algum aplicativo?',
@@ -103,6 +112,13 @@ const ano = new Date().getFullYear();
   description="Cardápio digital com link próprio, QR code e pedido no WhatsApp. Sem comissão e sem aplicativo. Para pizzarias, lanchonetes, docerias e delivery de bairro."
   jsonLd={jsonLd}
 >
+  <Fragment slot="head">
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <meta name="theme-color" content="#f6f6f8" />
+  </Fragment>
+
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
   <header class="cabecalho">
@@ -126,7 +142,10 @@ const ano = new Date().getFullYear();
       <div class="container hero-grade">
         <div class="hero-texto">
           <span class="eyebrow"><i></i> Cardápio digital para pequenos negócios</span>
-          <h1>Seu cardápio digital, com pedido direto no WhatsApp.</h1>
+          <h1>
+            Seu cardápio digital, com pedido direto no{' '}
+            <span class="glitch">WhatsApp<span class="glitch-copia ciano" aria-hidden="true">WhatsApp</span><span class="glitch-copia magenta" aria-hidden="true">WhatsApp</span></span>.
+          </h1>
           <p>
             Um link próprio, leve e bonito para o cliente escolher o que quer e enviar o pedido
             pra você. Sem comissão por venda, sem aplicativo e sem depender de marketplace.
@@ -148,9 +167,27 @@ const ano = new Date().getFullYear();
       </div>
     </section>
 
+    <div class="faixa" aria-hidden="true">
+      <div class="faixa-trilho">
+        {
+          [0, 1].map(() => (
+            <div class="faixa-bloco">
+              {faixa.map((texto) => (
+                <span>
+                  {texto}
+                  <i />
+                </span>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
     <section class="secao secao-papel">
       <div class="container">
-        <div class="titulo-secao">
+        <div class="titulo-secao" data-revelar>
+          <span class="rotulo"><i></i> O problema</span>
           <h2>Seu cliente quer pedir. Não quer baixar app.</h2>
           <p>
             Cada etapa a mais é um pedido que não chega. PDF pesado, print perdido na conversa e
@@ -185,7 +222,8 @@ const ano = new Date().getFullYear();
 
     <section class="secao secao-branca" id="recursos">
       <div class="container">
-        <div class="titulo-secao">
+        <div class="titulo-secao" data-revelar>
+          <span class="rotulo"><i></i> O que vem junto</span>
           <h2>Tudo o que o cardápio precisa. Nada que atrapalhe.</h2>
           <p>
             A página é rápida, funciona sem app e foi feita para quem pede pelo celular — do
@@ -247,7 +285,8 @@ const ano = new Date().getFullYear();
 
     <section class="secao secao-suave" id="como-funciona">
       <div class="container">
-        <div class="titulo-secao">
+        <div class="titulo-secao" data-revelar>
+          <span class="rotulo"><i></i> Como funciona</span>
           <h2>Do seu cardápio para o celular do cliente em três passos.</h2>
           <p>Sem instalar nada, sem treinar equipe e sem mudar o número que você já usa.</p>
         </div>
@@ -274,7 +313,8 @@ const ano = new Date().getFullYear();
 
     <section class="secao secao-branca" id="exemplos">
       <div class="container">
-        <div class="titulo-secao">
+        <div class="titulo-secao" data-revelar>
+          <span class="rotulo"><i></i> Na prática</span>
           <h2>Veja como fica na prática.</h2>
           <p>
             Dois pacotes, dois estilos. O seu cardápio leva o seu nome, as suas cores e o seu
@@ -319,7 +359,8 @@ const ano = new Date().getFullYear();
 
     <section class="secao secao-papel" id="pacotes">
       <div class="container">
-        <div class="titulo-secao">
+        <div class="titulo-secao" data-revelar>
+          <span class="rotulo"><i></i> Pacotes</span>
           <h2>Escolha o ponto de partida.</h2>
           <p>
             Os dois pacotes incluem link próprio, QR code e pedido no WhatsApp. O que muda é o
@@ -379,7 +420,8 @@ const ano = new Date().getFullYear();
 
     <section class="secao secao-branca" id="duvidas">
       <div class="container">
-        <div class="titulo-secao">
+        <div class="titulo-secao" data-revelar>
+          <span class="rotulo"><i></i> Dúvidas</span>
           <h2>Dúvidas comuns.</h2>
           <p>Se a sua não estiver aqui, chama no WhatsApp.</p>
         </div>
@@ -398,8 +440,11 @@ const ano = new Date().getFullYear();
     </section>
 
     <section class="secao cta-final">
-      <div class="container">
-        <h2>Seu próximo pedido pode começar com um link.</h2>
+      <div class="container" data-revelar>
+        <h2>
+          Seu próximo pedido pode começar com um{' '}
+          <span class="glitch">link<span class="glitch-copia ciano" aria-hidden="true">link</span><span class="glitch-copia magenta" aria-hidden="true">link</span></span>.
+        </h2>
         <p>
           Manda o nome do seu negócio e o cardápio. A gente monta uma prévia e mostra como fica
           antes de você decidir.
@@ -454,22 +499,49 @@ const ano = new Date().getFullYear();
     document.querySelectorAll<HTMLElement>('[data-wa]').forEach((link) => {
       link.addEventListener('click', () => track('Clique WhatsApp'));
     });
+
+    const alvos = document.querySelectorAll<HTMLElement>(
+      '[data-revelar], .recurso, .passo, .exemplo, .pacote, .duvidas details',
+    );
+    const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!('IntersectionObserver' in window) || semMovimento) {
+      alvos.forEach((alvo) => alvo.classList.add('visivel'));
+    } else {
+      const observador = new IntersectionObserver(
+        (entradas) => {
+          for (const entrada of entradas) {
+            if (!entrada.isIntersecting) continue;
+            entrada.target.classList.add('visivel');
+            observador.unobserve(entrada.target);
+          }
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.08 },
+      );
+
+      alvos.forEach((alvo) => observador.observe(alvo));
+    }
   </script>
 </Base>
 
+
 <style is:global>
   :root {
-    --tinta: #1c1210;
-    --tinta-2: #2a1c18;
-    --papel: #fbf8f4;
-    --papel-2: #f4ede4;
+    --tinta: #0b0b0f;
+    --tinta-2: #1b1b22;
+    --papel: #f6f6f8;
+    --papel-2: #eeeef2;
     --branco: #fff;
-    --acento: #d62828;
-    --acento-2: #b21f1f;
-    --suave: #efe6da;
-    --linha: #e6dbcd;
-    --mudo: #6d625c;
-    --verde: #1a8a4a;
+    --acento: #0b0b0f;
+    --acento-2: #26262e;
+    --ciano: #00d5e8;
+    --magenta: #ff2e93;
+    --suave: #eaeaef;
+    --linha: #e2e2e8;
+    --linha-forte: #c8c8d2;
+    --mudo: #62626e;
+    --verde: #0f9d58;
+    --sombra: 0 22px 55px -30px #0b0b0f73;
   }
 
   * {
@@ -487,6 +559,11 @@ const ano = new Date().getFullYear();
     color: var(--tinta);
     font: 16px/1.55 'Instrument Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--magenta);
+    color: #fff;
   }
 
   h1,
@@ -507,7 +584,7 @@ const ano = new Date().getFullYear();
   }
 
   :focus-visible {
-    outline: 3px solid var(--acento);
+    outline: 3px solid var(--magenta);
     outline-offset: 3px;
   }
 
@@ -541,8 +618,8 @@ const ano = new Date().getFullYear();
     top: 0;
     z-index: 50;
     border-bottom: 1px solid var(--linha);
-    background: color-mix(in srgb, var(--papel) 88%, transparent);
-    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, var(--papel) 86%, transparent);
+    backdrop-filter: blur(14px);
   }
 
   .cabecalho-interno {
@@ -561,12 +638,31 @@ const ano = new Date().getFullYear();
   }
 
   .nav a {
+    position: relative;
     color: var(--mudo);
     text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .nav a::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -5px;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ciano), var(--magenta));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
   }
 
   .nav a:hover {
     color: var(--tinta);
+  }
+
+  .nav a:hover::after {
+    transform: scaleX(1);
   }
 
   /* Botões */
@@ -586,6 +682,7 @@ const ano = new Date().getFullYear();
       background-color 0.15s ease,
       border-color 0.15s ease,
       color 0.15s ease,
+      box-shadow 0.18s ease,
       transform 0.15s ease;
   }
 
@@ -594,22 +691,26 @@ const ano = new Date().getFullYear();
   }
 
   .btn-primario {
-    background: var(--acento);
+    background: var(--tinta);
     color: #fff;
   }
 
   .btn-primario:hover {
-    background: var(--acento-2);
+    background: var(--tinta-2);
+    box-shadow:
+      4px 0 0 -1px var(--ciano),
+      -4px 0 0 -1px var(--magenta);
   }
 
   .btn-secundario {
-    border-color: #ffffff3d;
-    background: #ffffff0a;
-    color: #fff;
+    border-color: var(--tinta);
+    background: var(--branco);
+    color: var(--tinta);
   }
 
   .btn-secundario:hover {
-    background: #ffffff16;
+    background: var(--tinta);
+    color: #fff;
   }
 
   .btn-contorno {
@@ -637,11 +738,35 @@ const ano = new Date().getFullYear();
   .hero {
     position: relative;
     overflow: clip;
-    background: radial-gradient(120% 120% at 85% 8%, #6b1a14 0%, var(--tinta) 56%);
-    color: #fff;
+    background: var(--papel);
+    color: var(--tinta);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(#0b0b0f1f 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: radial-gradient(115% 85% at 50% 26%, #000 22%, transparent 76%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: -20% -10% auto;
+    height: 130%;
+    background:
+      radial-gradient(36% 42% at 10% 16%, #00d5e83d, transparent 68%),
+      radial-gradient(34% 40% at 90% 8%, #ff2e932e, transparent 70%),
+      radial-gradient(38% 44% at 72% 82%, #00d5e81f, transparent 72%);
+    pointer-events: none;
   }
 
   .hero-grade {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: 1.05fr 0.95fr;
     align-items: center;
@@ -649,19 +774,23 @@ const ano = new Date().getFullYear();
     padding-block: clamp(56px, 8vw, 96px) clamp(64px, 9vw, 112px);
   }
 
+  .hero-texto {
+    animation: subir 0.7s 0.05s both;
+  }
+
   .hero-texto h1 {
-    max-width: 15ch;
+    max-width: 17ch;
     margin: 20px 0 0;
-    font-size: clamp(2.4rem, 5.6vw, 4.15rem);
+    font-size: clamp(2.45rem, 5.7vw, 4.35rem);
     font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
+    line-height: 0.99;
+    letter-spacing: -0.042em;
   }
 
   .hero-texto p {
     max-width: 46ch;
     margin: 20px 0 0;
-    color: #e8dcd5;
+    color: var(--mudo);
     font-size: clamp(1rem, 1.5vw, 1.16rem);
   }
 
@@ -670,21 +799,22 @@ const ano = new Date().getFullYear();
     align-items: center;
     gap: 8px;
     padding: 6px 13px;
-    border: 1px solid #ffffff2b;
+    border: 1px solid var(--linha-forte);
     border-radius: 999px;
-    background: #ffffff0d;
-    color: #f3e7df;
+    background: var(--branco);
+    color: var(--tinta);
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.01em;
+    box-shadow: 0 1px 0 #fff inset;
   }
 
   .eyebrow i {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #5fd08a;
-    box-shadow: 0 0 0 3px #5fd08a26;
+    background: var(--ciano);
+    animation: pulsar 2.6s ease-in-out infinite;
   }
 
   .acoes {
@@ -701,15 +831,83 @@ const ano = new Date().getFullYear();
     margin: 28px 0 0;
     padding: 0;
     list-style: none;
-    color: #cbb9b0;
+    color: var(--mudo);
     font-size: 0.88rem;
   }
 
   .provas li::before {
     content: '✓';
     margin-right: 7px;
-    color: #5fd08a;
+    color: var(--magenta);
     font-weight: 700;
+  }
+
+  /* Texto com falha cromática */
+  .glitch {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .glitch-copia {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .glitch-copia.ciano {
+    color: var(--ciano);
+    animation: glitch-ciano 6.5s steps(1) infinite;
+  }
+
+  .glitch-copia.magenta {
+    color: var(--magenta);
+    animation: glitch-magenta 6.5s steps(1) infinite;
+  }
+
+  /* Faixa rolante */
+  .faixa {
+    overflow: hidden;
+    border-block: 1px solid var(--tinta);
+    background: var(--tinta);
+    color: #fff;
+  }
+
+  .faixa-trilho {
+    display: flex;
+    width: max-content;
+    animation: correr 30s linear infinite;
+  }
+
+  .faixa-bloco {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 13px 14px;
+  }
+
+  .faixa-bloco span {
+    display: inline-flex;
+    align-items: center;
+    gap: 28px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .faixa-bloco i {
+    width: 6px;
+    height: 6px;
+    background: var(--ciano);
+    transform: rotate(45deg);
+  }
+
+  .faixa-bloco span:nth-child(even) i {
+    background: var(--magenta);
   }
 
   /* Seções */
@@ -733,11 +931,29 @@ const ano = new Date().getFullYear();
     max-width: 720px;
   }
 
+  .rotulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+    color: var(--mudo);
+    font-size: 0.71rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .rotulo i {
+    width: 16px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ciano) 0 50%, var(--magenta) 50% 100%);
+  }
+
   .titulo-secao h2 {
     margin: 0 0 14px;
     font-size: clamp(1.9rem, 4vw, 2.85rem);
     font-weight: 800;
-    line-height: 1.08;
+    line-height: 1.06;
   }
 
   .titulo-secao p {
@@ -764,7 +980,12 @@ const ano = new Date().getFullYear();
 
   .duelo article.ruim {
     border-style: dashed;
-    background: var(--papel-2);
+    background: transparent;
+  }
+
+  .duelo article.bom {
+    border-color: var(--tinta);
+    box-shadow: var(--sombra);
   }
 
   .duelo h3 {
@@ -803,13 +1024,13 @@ const ano = new Date().getFullYear();
   }
 
   .marca-x {
-    background: #f3dede;
-    color: #a3241c;
+    background: #f7e0e9;
+    color: #b0125c;
   }
 
   .marca-v {
-    background: #dff1e6;
-    color: var(--verde);
+    background: #d9f8fa;
+    color: #0a7f8a;
   }
 
   /* Recursos */
@@ -825,6 +1046,19 @@ const ano = new Date().getFullYear();
     border: 1px solid var(--linha);
     border-radius: 20px;
     background: var(--branco);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .recurso:hover {
+    border-color: var(--tinta);
+    box-shadow:
+      5px 5px 0 -1px var(--ciano),
+      -5px -5px 0 -1px var(--magenta),
+      var(--sombra);
+    transform: translateY(-4px);
   }
 
   .recurso .icone {
@@ -834,8 +1068,13 @@ const ano = new Date().getFullYear();
     height: 44px;
     margin-bottom: 16px;
     border-radius: 13px;
-    background: var(--suave);
-    color: var(--acento);
+    background: var(--tinta);
+    color: #fff;
+    transition: background 0.2s ease;
+  }
+
+  .recurso:hover .icone {
+    background: linear-gradient(135deg, var(--ciano), var(--magenta));
   }
 
   .recurso .icone svg {
@@ -880,14 +1119,30 @@ const ano = new Date().getFullYear();
     border: 1px solid var(--linha);
     border-radius: 22px;
     background: var(--branco);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .passo:hover {
+    border-color: var(--tinta);
+    box-shadow:
+      5px 5px 0 -1px var(--ciano),
+      -5px -5px 0 -1px var(--magenta),
+      var(--sombra);
+    transform: translateY(-4px);
   }
 
   .passo .num {
     display: block;
     margin-bottom: 12px;
-    color: var(--acento);
-    font: 800 2.1rem/1 'Bricolage Grotesque', sans-serif;
-    opacity: 0.9;
+    color: transparent;
+    font: 800 2.3rem/1 'Bricolage Grotesque', sans-serif;
+    -webkit-text-stroke: 1.4px var(--tinta);
+    text-shadow:
+      3px 0 var(--ciano),
+      -3px 0 var(--magenta);
   }
 
   .passo h3 {
@@ -919,13 +1174,18 @@ const ano = new Date().getFullYear();
     color: inherit;
     text-decoration: none;
     transition:
-      transform 0.18s ease,
-      box-shadow 0.18s ease;
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .exemplo:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 44px #1c121014;
+    border-color: var(--tinta);
+    box-shadow:
+      5px 5px 0 -1px var(--ciano),
+      -5px -5px 0 -1px var(--magenta),
+      var(--sombra);
+    transform: translateY(-4px);
   }
 
   .exemplo .previa {
@@ -934,16 +1194,19 @@ const ano = new Date().getFullYear();
     place-items: center;
     padding: 22px 18px;
     border-right: 1px solid var(--linha);
-    background: radial-gradient(120% 90% at 50% 0%, #f6e9e6 0%, var(--papel-2) 72%);
+    background:
+      radial-gradient(120% 90% at 50% 0%, #dffbfd 0%, transparent 62%),
+      radial-gradient(100% 80% at 100% 100%, #ffe3f0 0%, transparent 58%),
+      var(--papel-2);
   }
 
   .exemplo .previa img {
     display: block;
     width: min(190px, 100%);
     height: 300px;
-    border: 5px solid #1c1210;
+    border: 5px solid var(--tinta);
     border-radius: 22px;
-    box-shadow: 0 18px 34px #1c12101f;
+    box-shadow: 0 18px 34px #0b0b0f24;
     object-fit: cover;
     object-position: top center;
   }
@@ -960,8 +1223,9 @@ const ano = new Date().getFullYear();
   .exemplo .selo {
     align-self: flex-start;
     padding: 4px 10px;
+    border: 1px solid var(--linha-forte);
     border-radius: 999px;
-    background: var(--suave);
+    background: var(--papel);
     color: var(--mudo);
     font-size: 0.76rem;
     font-weight: 600;
@@ -984,9 +1248,17 @@ const ano = new Date().getFullYear();
     gap: 6px;
     margin-top: auto;
     padding-top: 16px;
-    color: var(--acento);
+    color: var(--tinta);
     font-weight: 600;
     font-size: 0.94rem;
+  }
+
+  .exemplo .abrir span {
+    transition: transform 0.18s ease;
+  }
+
+  .exemplo:hover .abrir span {
+    transform: translateX(4px);
   }
 
   /* Pacotes */
@@ -1006,11 +1278,35 @@ const ano = new Date().getFullYear();
     border: 1px solid var(--linha);
     border-radius: 24px;
     background: var(--branco);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .pacote:hover {
+    border-color: var(--tinta);
+    box-shadow:
+      5px 5px 0 -1px var(--ciano),
+      -5px -5px 0 -1px var(--magenta),
+      var(--sombra);
+    transform: translateY(-4px);
   }
 
   .pacote.destaque {
-    border-color: var(--acento);
-    box-shadow: 0 24px 60px #d6282814;
+    border-color: var(--tinta);
+    background: var(--tinta);
+    color: #fff;
+    box-shadow:
+      0 34px 70px -44px #00d5e8,
+      0 34px 70px -52px #ff2e93;
+  }
+
+  .pacote.destaque:hover {
+    box-shadow:
+      5px 5px 0 -1px var(--ciano),
+      -5px -5px 0 -1px var(--magenta),
+      0 34px 70px -44px #00d5e8;
   }
 
   .pacote .etiqueta {
@@ -1019,10 +1315,17 @@ const ano = new Date().getFullYear();
     right: 24px;
     padding: 5px 12px;
     border-radius: 999px;
-    background: var(--acento);
+    background: var(--tinta);
     color: #fff;
-    font-size: 0.74rem;
+    font-size: 0.7rem;
     font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .pacote.destaque .etiqueta {
+    background: linear-gradient(90deg, var(--ciano), var(--magenta));
+    color: var(--tinta);
   }
 
   .pacote h3 {
@@ -1034,6 +1337,11 @@ const ano = new Date().getFullYear();
     margin: 6px 0 20px;
     color: var(--mudo);
     font-size: 0.96rem;
+  }
+
+  .pacote.destaque .resumo,
+  .pacote.destaque ul {
+    color: #b9b9c4;
   }
 
   .pacote ul {
@@ -1052,6 +1360,10 @@ const ano = new Date().getFullYear();
     font-weight: 700;
   }
 
+  .pacote.destaque li::before {
+    color: var(--ciano);
+  }
+
   .pacote .preco {
     display: flex;
     flex-direction: column;
@@ -1059,6 +1371,10 @@ const ano = new Date().getFullYear();
     margin-top: auto;
     padding-top: 22px;
     border-top: 1px solid var(--linha);
+  }
+
+  .pacote.destaque .preco {
+    border-top-color: #ffffff24;
   }
 
   .pacote .preco b {
@@ -1070,6 +1386,22 @@ const ano = new Date().getFullYear();
     margin-bottom: 14px;
     color: var(--mudo);
     font-size: 0.88rem;
+  }
+
+  .pacote.destaque .preco small {
+    color: #9a9aa6;
+  }
+
+  .pacote.destaque .btn-primario {
+    background: #fff;
+    color: var(--tinta);
+  }
+
+  .pacote.destaque .btn-primario:hover {
+    background: var(--ciano);
+    box-shadow:
+      4px 0 0 -1px #fff,
+      -4px 0 0 -1px var(--magenta);
   }
 
   .nota {
@@ -1111,7 +1443,7 @@ const ano = new Date().getFullYear();
 
   .duvidas summary::after {
     content: '+';
-    color: var(--acento);
+    color: var(--magenta);
     font-size: 1.5rem;
     font-weight: 400;
     line-height: 1;
@@ -1130,38 +1462,79 @@ const ano = new Date().getFullYear();
 
   /* CTA final */
   .cta-final {
-    background: linear-gradient(135deg, #2a1713, var(--tinta) 62%);
+    position: relative;
+    overflow: clip;
+    background: var(--tinta);
     color: #fff;
     text-align: center;
   }
 
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(46% 60% at 16% 0%, #00d5e83d, transparent 70%),
+      radial-gradient(42% 56% at 86% 100%, #ff2e9333, transparent 72%);
+    pointer-events: none;
+  }
+
+  .cta-final .container {
+    position: relative;
+    z-index: 1;
+  }
+
   .cta-final h2 {
-    max-width: 18ch;
+    max-width: 20ch;
     margin: 0 auto 16px;
     font-size: clamp(2rem, 4.4vw, 3.15rem);
     font-weight: 800;
-    line-height: 1.06;
+    line-height: 1.04;
   }
 
   .cta-final p {
     max-width: 54ch;
     margin: 0 auto 30px;
-    color: #c9b7ae;
+    color: #b9b9c4;
     font-size: 1.03rem;
+  }
+
+  .cta-final .btn-primario {
+    background: #fff;
+    color: var(--tinta);
+  }
+
+  .cta-final .btn-primario:hover {
+    background: var(--ciano);
+    box-shadow:
+      4px 0 0 -1px #fff,
+      -4px 0 0 -1px var(--magenta);
   }
 
   .cta-final small {
     display: block;
     margin-top: 16px;
-    color: #a9978e;
+    color: #83838f;
     font-size: 0.84rem;
   }
 
   /* Rodapé */
   .rodape {
+    position: relative;
     padding: 52px 0 30px;
-    background: #140d0b;
-    color: #c9b7ae;
+    background: #07070a;
+    color: #b9b9c4;
+  }
+
+  .rodape::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ciano), var(--magenta));
+    opacity: 0.75;
   }
 
   .rodape-grade {
@@ -1173,7 +1546,7 @@ const ano = new Date().getFullYear();
   .rodape-marca p {
     max-width: 36ch;
     margin: 16px 0 0;
-    color: #a9978e;
+    color: #8f8f9c;
     font-size: 0.92rem;
   }
 
@@ -1194,12 +1567,15 @@ const ano = new Date().getFullYear();
   }
 
   .rodape-col a {
-    color: #c9b7ae;
+    color: #b9b9c4;
     text-decoration: none;
   }
 
   .rodape-col a:hover {
     color: #fff;
+    text-decoration: underline;
+    text-decoration-color: var(--ciano);
+    text-underline-offset: 3px;
   }
 
   .rodape-base {
@@ -1209,8 +1585,128 @@ const ano = new Date().getFullYear();
     margin-top: 40px;
     padding-top: 20px;
     border-top: 1px solid #ffffff1a;
-    color: #8f7e75;
+    color: #77778a;
     font-size: 0.84rem;
+  }
+
+  /* Entrada suave no scroll */
+  .js :is([data-revelar], .recurso, .passo, .exemplo, .pacote, .duvidas details) {
+    opacity: 0;
+  }
+
+  .js :is([data-revelar], .recurso, .passo, .exemplo, .pacote, .duvidas details).visivel {
+    opacity: 1;
+    animation: revelar 0.62s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .js :is(.recursos, .passos, .exemplos, .pacotes, .duvidas) > :nth-child(2) {
+    animation-delay: 0.08s;
+  }
+
+  .js :is(.recursos, .passos, .exemplos, .pacotes, .duvidas) > :nth-child(3) {
+    animation-delay: 0.16s;
+  }
+
+  .js :is(.recursos, .passos, .exemplos, .pacotes, .duvidas) > :nth-child(4) {
+    animation-delay: 0.24s;
+  }
+
+  @keyframes subir {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes revelar {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes pulsar {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 #00d5e866;
+    }
+    50% {
+      box-shadow: 0 0 0 5px #00d5e800;
+    }
+  }
+
+  @keyframes correr {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes glitch-ciano {
+    0%,
+    84%,
+    100% {
+      opacity: 0;
+      clip-path: inset(0 0 100% 0);
+      transform: translate(0, 0);
+    }
+    85% {
+      opacity: 0.85;
+      clip-path: inset(4% 0 72% 0);
+      transform: translate(-4px, -2px);
+    }
+    87% {
+      opacity: 0.85;
+      clip-path: inset(44% 0 32% 0);
+      transform: translate(3px, 1px);
+    }
+    89% {
+      opacity: 0.85;
+      clip-path: inset(74% 0 6% 0);
+      transform: translate(-2px, 2px);
+    }
+    91% {
+      opacity: 0;
+      clip-path: inset(0 0 100% 0);
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes glitch-magenta {
+    0%,
+    85%,
+    100% {
+      opacity: 0;
+      clip-path: inset(0 0 100% 0);
+      transform: translate(0, 0);
+    }
+    86% {
+      opacity: 0.8;
+      clip-path: inset(62% 0 18% 0);
+      transform: translate(4px, 2px);
+    }
+    88% {
+      opacity: 0.8;
+      clip-path: inset(18% 0 58% 0);
+      transform: translate(-3px, -1px);
+    }
+    90% {
+      opacity: 0.8;
+      clip-path: inset(82% 0 2% 0);
+      transform: translate(2px, -2px);
+    }
+    92% {
+      opacity: 0;
+      clip-path: inset(0 0 100% 0);
+      transform: translate(0, 0);
+    }
   }
 
   @media (max-width: 900px) {
@@ -1221,7 +1717,7 @@ const ano = new Date().getFullYear();
     }
 
     .hero-texto h1 {
-      max-width: 18ch;
+      max-width: 19ch;
     }
 
     .recursos,
@@ -1319,6 +1815,24 @@ const ano = new Date().getFullYear();
     *::before,
     *::after {
       transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+
+    .hero-texto,
+    .hero .palco,
+    .faixa-trilho,
+    .eyebrow i,
+    .glitch-copia {
+      animation: none;
+    }
+
+    .glitch-copia {
+      opacity: 0;
+    }
+
+    .js :is([data-revelar], .recurso, .passo, .exemplo, .pacote, .duvidas details) {
+      opacity: 1;
     }
   }
 </style>
